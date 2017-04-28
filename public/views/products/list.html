@@ -1,0 +1,13 @@
+<section data-ng-controller="ProductsController" data-ng-init="find()">
+	<ul class="products unstyled">
+		<li data-ng-repeat="product in products">
+			<h2><a data-ng-href="#!/reviews/{{product.id}}">{{product.name}}</a></h2>
+			<div>Description : {{product.desc}}</div>
+			<div>Brand 			 : {{product.brandName}}</div>
+			<div>
+			<div>{{product.userName}} : {{product.comment}}</div>
+			<div>Vote 								: {{product.rating}}/10</div>
+			</div>
+		</li>
+	</ul>
+</section>

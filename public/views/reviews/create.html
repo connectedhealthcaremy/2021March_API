@@ -1,0 +1,32 @@
+<section data-ng-controller="ReviewsController" data-ng-init="findOne()">
+
+<div>
+	<div>Name 						 : {{review.name}}</div>
+	<div>Description 			 : {{review.desc}}</div>
+</br>
+</br>
+</div>
+
+	<form class="form-horizontal" data-ng-submit="create()">
+
+		<div class="control-group">
+			<label class="control-label" for="comment">Comment</label>
+			<div class="controls">
+				<input type="text" data-ng-model="comment" id="comment" placeholder="Comment" required>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<label class="control-label" for="rating">Rating</label>
+			<div class="controls">
+				<input type="text" data-ng-model="rating" id="rating" placeholder="Rating" required>
+			</div>
+		</div>
+
+		<div class="control-group">
+			<div class="controls">
+				<input type="submit" class="btn">
+			</div>
+		</div>
+	</form>
+</section>
