@@ -11,7 +11,7 @@ module.exports = function(app) {
 	app.get('/GetNotificationCount', notify.getNotificationinboxcount);
 	app.get('/GetMessageCount', notify.getMessagecount);
 	app.post('/ReadAllNotifications', notify.readallnotificationsInbox);
-	app.post('/ReadAllMessages', notify.readAllMessages);
+	app.get('/ReadAllMessages', notify.readAllMessages);
 	app.get('/loadmoregetNotificationinbox', notify.loadmoregetNotificationinbox);
 	app.get('/loadmoregetNotificationsent', notify.loadmoregetNotificationsent);
 

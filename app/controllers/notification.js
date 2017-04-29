@@ -5,7 +5,7 @@
  */
 /*var _ = require('lodash');*/
 var db = require('../../config/sequelize');
-var FCM = require('fcm-node'); 
+var FCM = require('fcm-node');
 var config = require('../../config/config');
 //============================================Add Notification============================================/////////////////
 exports.addnotification = function(req, res) {
@@ -41,9 +41,9 @@ exports.addnotification = function(req, res) {
 						/***************
 						 **notification to mobile devices
 						 ******************/
-                         
+
 						var resf = sendAndroidNotification(to, name, subject, lastid);
-                        
+
 
 						data["error"] = 0;
 						data["authResponse"] = "Notification Sent Successfully";
@@ -93,10 +93,10 @@ function sendAndroidNotification(userid, name, subject, lastid) {
 
 	db.notificationDevices.getdevicebyuser(userid).then(function(response) {
 			if (response != '' && response != null) {
-                        
+
 			/*var pushtoken = response[0].deviceID;
-			
-				
+
+
 				var SERVER_API_KEY='AAAANqHPTPA:APA91bEZgGvMJOjinwWqHNpdcfzaZFEf97CDRtK9-CkvuKU4-5wHb7uFkKxn5u9VNdEkm6-xpYjWpHz5P9U2MtRMDvpJ3f_ntMbzcJmszV9U1HJP26RXLvN--ZMokc82j6aV-PDnKshQdNMvq9_LzNTKb0i8j8P_jA';//put your api key here
 
 				var validDeviceRegistrationToken = pushtoken; //put a valid device token here
@@ -136,13 +136,13 @@ var serverKey = 'AAAANqHPTPA:APA91bEZgGvMJOjinwWqHNpdcfzaZFEf97CDRtK9-CkvuKU4-5w
 var fcm = new FCM(serverKey);
 
 var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-    to: pushtoken, 
+    to: pushtoken,
    //// collapse_key: 'your_collapse_key',
     priority: 'high',
-    data: { 
-        title: subject,  
-       /// body: "<a href='http://58.26.233.115/IDAS/portal/read-notification.php?nid=" + lastid + "'>" + subject + "</a>" 
-    } 
+    data: {
+        title: subject,
+       /// body: "<a href='http://58.26.233.115/IDAS/portal/read-notification.php?nid=" + lastid + "'>" + subject + "</a>"
+    }
 };
 
 fcm.send(message, function(err, response){
@@ -153,9 +153,9 @@ fcm.send(message, function(err, response){
     }
 });
 
-				
 
-				
+
+
 			} else {
 
 				data['push'] = 'No Registered For Push Notification';
@@ -514,6 +514,7 @@ exports.getMessagecount = function(req, res) {
 
         var userid = req.query.userid;
         var token = req.query.token;
+				var operatorid = req.query.operatorid;
 
         var data = {
                 "error": 0,
@@ -523,7 +524,7 @@ exports.getMessagecount = function(req, res) {
                 ///Authinticate user
                 db.user.authUser(token).then(function(response) {
                                 if (response != '' && response != null) {
-					
+
 
 		var mysql      = require('mysql');
 var connection = mysql.createConnection({
@@ -536,6 +537,7 @@ var connection = mysql.createConnection({
 connection.connect();
 
 var user_name = "'drmoy@umchtech.com'";
+user_name = "'"+operatorid+"'";
 
 connection.query("SELECT COUNT(*) AS count FROM `message_push_tasks` LEFT JOIN `conversation_infos` ON message_push_tasks.conversation_uuid = conversation_infos.uuid LEFT JOIN `device_users` ON conversation_infos.assigned_uuid = device_users.uuid WHERE msg_read = 1 AND user_name = "+user_name+"", function (error, results, fields) {
   if (error) throw error;
@@ -576,6 +578,7 @@ exports.readAllMessages = function(req, res) {
 
         var userid = req.query.userid;
         var token = req.query.token;
+				var operatorid = req.query.operatorid;
 
         var data = {
                 "error": 0,
@@ -584,7 +587,7 @@ exports.readAllMessages = function(req, res) {
         if (!!token) {
                 ///Authinticate user
                 db.user.authUser(token).then(function(response) {
-                
+
                                 if (response != '' && response != null) {
 
 
@@ -599,6 +602,7 @@ exports.readAllMessages = function(req, res) {
                   connection.connect();
 
                   var username = "'drmoy@umchtech.com'";
+									username = "'"+operatorid+"'";
                   var uuid = "";
 
                   connection.query("SELECT * FROM device_users WHERE user_name = "+username+"",function(error,results,fields){
@@ -623,9 +627,9 @@ exports.readAllMessages = function(req, res) {
                                                         res.json(data);
 
                                                         });
- 
-			connection.end() 
-			});                                                      
+
+			connection.end()
+			});
 			//connection.end();
 
                                                         } //response

@@ -270,9 +270,9 @@ exports.updateDeviceToken = function(req, res) {
 		///Authinticate user
 		db.user.authUser(token).then(function(response) {
 				if (response != '' && response != null) {
-				
+
 					var sql="UPDATE user SET deviceID='"+deviceID+"' WHERE userID='"+userid+"'";
-					
+
 					db.user.updateDeiveToken(sql).then(function(response) {
 								data["error"] = 0;
 								data["authResponse"] = "Device Token updated Sucessfully.";
@@ -282,7 +282,7 @@ exports.updateDeviceToken = function(req, res) {
 							.error(function(err) {
 								res.json(err);
 							});
-					
+
 
 				} else {
 					data["error"] = 1;
@@ -398,7 +398,7 @@ exports.forgotPasssword = function(req, res) {
 	});
 	smtpTransport.sendMail({ //email options
 		from: "No-Reply <chief.umch@gmail.com>", // sender address.  Must be the same as authenticated user if using GMail.
-		to: email, // receiver 
+		to: email, // receiver
 		subject: "Password Recovery", // subject
 		html: 'Hi <b>' + name + ' </b>' + '<br><br> We received a request for password recovery.Please Click on below <a href="http://www.umchtech.com/chief/resetpassword.php?ts=' + userID + '&&token=' + token + '">link</a> to reset password.<br><br><h4><a href="http://www.umchtech.com/chief/resetpassword.php?ts=' + userID + '&&token=' + token + '">Click Here</a><h4><br><br><br>Regards <br>   Support CHIEF Team' // body
 	}, function(error, response) { //callback
@@ -414,7 +414,7 @@ exports.forgotPasssword = function(req, res) {
 	});
 
 	/*********************
-	 **End email 
+	 **End email
 	 ********************/
 
 /*
@@ -747,6 +747,34 @@ exports.GetUserQuestionnaire = function(req, res) {
 	return res;
 };
 
+function getOperatorUUID(operatorid, length ,data ,output)
+{
+	var mysql      = require('mysql');
+	var connection = mysql.createConnection({
+		host     : "chat.umchtech.com",
+		user     : "umch",
+		password : "umch!@#$",
+		database : "ppmessage"
+	});
+
+	connection.connect();
+
+	var user_name = "'"+operatorid+"'";
+
+	connection.query("SELECT * FROM `device_users` WHERE user_name = "+user_name+"", function (error, results, fields) {
+		if (error) throw error;
+
+		// console.log('The device uuid is: ', results[0].uuid);
+		// output(results[0].uuid);
+		// return results[0].uuid;
+		data[results[0].uuid] = {};
+		output(data,length);
+
+	});
+
+	connection.end();
+}
+
 ///===========================================Get User Chat List ==============================================///////////////////////
 exports.GetChatPartners = function(req, res) {
         var userid = req.query.userid;
@@ -761,29 +789,62 @@ exports.GetChatPartners = function(req, res) {
                 db.user.authUser(token).then(function(response) {
                                 if (response != '' && response != null) {
 
-						response = {"1758e22a-2552-11e7-9f68-82f2b4d1d44d":"uuid","0b2b3aac-2552-11e7-9f68-82f2b4d1d44d":"uuid"};
-						
-						var obj1 = {"1758e22a-2552-11e7-9f68-82f2b4d1d44d":"uuid"};
+																	db.userillness.getProfessionalList(userid).then(function(response) {
 
-						var obj2 = {"0b2b3aac-2552-11e7-9f68-82f2b4d1d44d":"uuid"};
+																			var output = JSON.parse("{}");
 
-						var response = JSON.parse("{}");
-						
-						var key = "5cebae78-29d8-11e7-9f68-82f2b4d1d44d"; //chief support
+																			for (var i = 0; i < response.length; i++) {
 
-						response[key] = {};
+																				var operatorid = response[i].operatorid;
 
-						key = "1758e22a-2552-11e7-9f68-82f2b4d1d44d"; //dr moy
+																				var uuid = getOperatorUUID(operatorid, response.length, output, function (dt,length) {
 
-						response[key] = {};
-						
-						key = "0b2b3aac-2552-11e7-9f68-82f2b4d1d44d"; //dr ardina
+																						var size = Object.keys(dt).length;
+																						// console.log('length: ', size);
 
-						response[key] = {}; 
-                                                        data["error"] = 0;
-                                                        data["authResponse"] = "Action Successful";
-                                                       data['Data'] = JSON.stringify(response);
-                                                        res.json(data);
+																					if(size== length)
+																					{
+																					// console.log('The data return is: ', data);
+																					var key = "5cebae78-29d8-11e7-9f68-82f2b4d1d44d"; //chief support
+
+																					output[key] = {};
+																					
+																					data["error"] = 0;
+																					data["authResponse"] = "Action Successful";
+																					data['Data'] = JSON.stringify(output);
+																					res.json(data);
+																					}
+
+																				});
+
+																			}
+
+																		});
+
+
+																	// response = {"1758e22a-2552-11e7-9f68-82f2b4d1d44d":"uuid","0b2b3aac-2552-11e7-9f68-82f2b4d1d44d":"uuid"};
+																	//
+																	// var obj1 = {"1758e22a-2552-11e7-9f68-82f2b4d1d44d":"uuid"};
+																	//
+																	// var obj2 = {"0b2b3aac-2552-11e7-9f68-82f2b4d1d44d":"uuid"};
+																	//
+																	// var response = JSON.parse("{}");
+																	//
+																	// var key = "5cebae78-29d8-11e7-9f68-82f2b4d1d44d"; //chief support
+																	//
+																	// response[key] = {};
+																	//
+																	// key = "1758e22a-2552-11e7-9f68-82f2b4d1d44d"; //dr moy
+																	//
+																	// response[key] = {};
+																	//
+																	// key = "0b2b3aac-2552-11e7-9f68-82f2b4d1d44d"; //dr ardina
+																	//
+																	// response[key] = {};
+																	// data["error"] = 0;
+																	// data["authResponse"] = "Action Successful";
+																	// data['Data'] = JSON.stringify(response);
+																	// res.json(data);
 
 
                                 } else {
@@ -813,9 +874,9 @@ exports.addnewPatientByDoctor = function(req, res) {
 	var code = randtoken.generate(12);
 	var professionalID = req.body.professionalID;
 	var emailSentDatTime = req.body.emailSentDatTime;
-	
+
 	var phone=req.body.phone;
- 
+
 	var data = {
 		"error": 0,
 		"authResponse": ""
@@ -833,12 +894,12 @@ exports.addnewPatientByDoctor = function(req, res) {
 					 **Create user email status with doctor
 					 *******************/
 					var sql = "INSERT INTO professionalInvitation  (`professionalID`, `email`, `name`, `phone`, `emailSentDatTime` , `auth_code`) VALUES ('" + professionalID + "', '" + email + "', '" + name + "', '" + phone + "','" + emailSentDatTime + "', '" + code + "');";
-   
+
 					db.userillness.adduserillness(sql).then(function(response) {
 							data["error"] = 0;
 							data["authResponse"] = "User Invitation Added";
 							var lastID = response;
-							var url = "http://www.umchtech.com/chief/accept_invitation.php?pi_id=" + lastID + ""; 
+							var url = "http://www.umchtech.com/chief/accept_invitation.php?pi_id=" + lastID + "";
 							/***********************
 							 **Email Notification
 							 *************************/
@@ -868,7 +929,7 @@ exports.addnewPatientByDoctor = function(req, res) {
 							});
 
 							/*********************
-							 **End email 
+							 **End email
 							 ********************/
 
 							res.json(data)
@@ -888,14 +949,14 @@ exports.addnewPatientByDoctor = function(req, res) {
 				} else {
 
                 var name=req.body.name;
-                
+
 					var lastID = '';
 
 					/****************
 					 **Create user email status with doctor
 					 *******************/
 					var sql = "INSERT INTO professionalInvitation  (`professionalID`, `email`, `name`, `phone`, `emailSentDatTime` , `auth_code`) VALUES ('" + professionalID + "', '" + email + "', '" + name + "', '" + phone + "','" + emailSentDatTime + "', '" + code + "');";
-   
+
 					db.userillness.adduserillness(sql).then(function(response) {
 							data["error"] = 0;
 							data["authResponse"] = "User Invitation Added";
@@ -930,7 +991,7 @@ exports.addnewPatientByDoctor = function(req, res) {
 							});
 
 							/*********************
-							 **End email 
+							 **End email
 							 ********************/
 
 							res.json(data)
