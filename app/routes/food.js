@@ -11,6 +11,9 @@
  	app.post('/DeleteactivityFood', food.DeleteactivityFood);
  	app.get('/GetFoodHistory', food.getfoodhistory);
 
+ 	/////=======================Add Food History Results============////////
+ 	app.post('/addfoodhistoryresult', food.addfoodhistoryresult); 
+
  	////========================Food Timing==========================//////////
 
  	app.post('/AddFoodTiming', food.addfoodtiming);

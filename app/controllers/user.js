@@ -808,7 +808,7 @@ exports.GetChatPartners = function(req, res) {
 																					var key = "5cebae78-29d8-11e7-9f68-82f2b4d1d44d"; //chief support
 
 																					output[key] = {};
-																					
+
 																					data["error"] = 0;
 																					data["authResponse"] = "Action Successful";
 																					data['Data'] = JSON.stringify(output);
@@ -867,6 +867,64 @@ exports.GetChatPartners = function(req, res) {
         return res;
 };
 
+///===========================================Get Chat User Information==============================================///////////////////////
+exports.GetChatUser = function(req, res) {
+        var userid = req.query.userid;
+        var token = req.query.token;
+				var username = req.query.username;
+
+        var data = {
+                "error": 0,
+                "authResponse": ""
+        }
+        if (!!token) {
+                ///Authinticate user
+                db.user.authUser(token).then(function(response) {
+                                if (response != '' && response != null) {
+
+																	var mysql      = require('mysql');
+																	var connection = mysql.createConnection({
+																		host     : "chat.umchtech.com",
+																		user     : "umch",
+																		password : "umch!@#$",
+																		database : "ppmessage"
+																	});
+
+																	connection.connect();
+
+																	var user_name = "'"+username+"'";
+
+																	connection.query("SELECT user_name, uuid FROM `device_users` WHERE user_name = "+user_name+"", function (error, results, fields) {
+																		if (error) throw error;
+
+																		data["error"] = 0;
+																		data["authResponse"] = "Action Successful";
+																		data['Data'] = results;
+																		res.json(data);
+
+																	});
+
+																	connection.end();
+
+                                } else {
+                                        data["error"] = 1;
+                                        data["authResponse"] = "Authentication Failed.";
+                                        res.json(data);
+
+                                }
+                        })
+                        .error(function(err) {
+                                res.json(err);
+                        });
+        } else {
+                data["error"] = 1;
+                data["authResponse"] = "Please provide all required data (i.e : token etc)";
+                res.json(data);
+                //connection.end()
+        }
+
+        return res;
+};
 
 ///===========================================Send Email to Patient=============================================//////////////////////
 exports.addnewPatientByDoctor = function(req, res) {

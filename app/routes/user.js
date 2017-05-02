@@ -23,12 +23,19 @@
  	 ****************/
  	app.post('/questionaire', user.questionuseradd);
  	app.get('/Getquestionaire', user.GetUserQuestionnaire);
-	
+
 	/***************
 	** Added by alex for user chat list
 	******************/
 
 	app.get('/GetChatPartners', user.GetChatPartners);
+
+  /***************
+	** Added by alex for getting chat user info
+	******************/
+
+	app.get('/GetChatUser', user.GetChatUser);
+
  	/*****************
  	 **Add new patient by doctor
  	 ******************/

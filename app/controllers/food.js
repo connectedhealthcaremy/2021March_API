@@ -6,6 +6,229 @@
 /*var _ = require('lodash');*/
 var db = require('../../config/sequelize');
 
+//============================================Add food history result============================================/////////////////
+
+exports.addfoodhistoryresult = function(req, res) {
+
+    var userid = req.body.userid;
+    var token = req.body.token;
+    var data1 = req.body.data;
+    data1 = JSON.parse(data1);
+    var total = data1.length;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+
+
+
+    db.user.authUser(token).then(function(response) {
+            if (!!token) {
+                if (response != '' && response != null) {
+
+                    var email = response;
+
+                    var sql = "INSERT INTO food_history_result (userID,recordDateTime,calorieIntake, caloriePercentIntake, calorieGoal, caloriePercentGoal, cabsIntake, carbsPercentIntake, carbsGoal, carbsGoalPercent, sugarIntake, sugarPercentIntake, sugarGoal, sugarGoalPercent, proteinIntake, proteinPercent, proteinGoal, proteinPercentGoal, fatIntake, fatPercentIntake, fatGoalIntake, fatPercentGoalIntake, saturatedFatIntake, saturatedFatPercentIntake, saturatedFatGoalIntake, saturatedFatPercentGoalIntake, munSaturatedFatIntake, munSaturatedFatPercentIntake, mufaGoalIntake, mufaFatGoalPercentIntake, pufaIntake, pufaPercent, pufaGoalIntake, pufaPercentGoalIntake, transfatIntake, transfatPercentIntake, transfatGoalIntake, transfatGoalPercentIntake, cholestrolIntake, cholestrolPercentIntake, cholestrolGoalIntake, cholestrolGoalPercentIntake, sodiumIntake, sodiumPercentIntake, sodiumGoalIntake, sodiumPercentGoalIntake, calciumIntake, calciumPercentIntake, calciumGoalIntake, calciumGoalPercentIntake, vitamaincIntake, vitamaincPercentIntake, vitamainCGoalIntake, vitamainCGoalPercentIntake, ironIntake, ironPercentIntake, ironGoalIntake, ironGoalPercentIntake, fiberIntake, fiberPercentIntake, fiberGoalIntake, fiberGoalPercentIntake, caloriePercentFoodDistribution, carbPercentFoodDistribution, sugarPercentDistribution, proteinPercentDistribution, fatPercentDistribution, saturatedFatPercentDistribution, munSaturatedFatPercentDistribution, pufaSaturatedFatPercentDistribution, transFatPercentDistribution, sodiumPercentDistribution, calciumPercentDistribution, vitamainCPercentDistribution, ironPercentDistribution, fiberPercentDistribution) values ";
+
+
+                    for (var i = 0; i < total - 1; i++) {
+                        var recordDateTime=data1[i].recordDateTime;
+                        var calorieIntake = data1[i].calorieIntake;
+                        var caloriePercentIntake = data1[i].caloriePercentIntake; 
+                        var calorieGoal = data1[i].calorieGoal;
+                        var caloriePercentGoal = data1[i].caloriePercentGoal;
+                        var cabsIntake = data1[i].cabsIntake;
+                        var carbsPercentIntake = data1[i].carbsPercentIntake;
+                        var carbsGoal = data1[i].carbsGoal;
+                        var carbsGoalPercent = data1[i].carbsGoalPercent;
+                        var sugarIntake = data1[i].sugarIntake;
+                        var sugarPercentIntake = data1[i].sugarPercentIntake;
+                        var sugarGoal = data1[i].sugarGoal;
+                        var sugarGoalPercent = data1[i].sugarGoalPercent;
+                        var proteinIntake = data1[i].proteinIntake;
+                        var proteinPercent = data1[i].proteinPercent;
+                        var proteinGoal = data1[i].proteinGoal;
+                        var proteinPercentGoal = data1[i].proteinPercentGoal;
+                        var fatIntake = data1[i].fatIntake;
+                        var fatPercentIntake = data1[i].fatPercentIntake;
+                        var fatGoalIntake = data1[i].fatGoalIntake;
+                        var fatPercentGoalIntake = data1[i].fatPercentGoalIntake;
+                        var saturatedFatIntake = data1[i].saturatedFatIntake;
+                        var saturatedFatPercentIntake = data1[i].saturatedFatPercentIntake;
+                        var saturatedFatGoalIntake = data1[i].saturatedFatGoalIntake;
+                        var saturatedFatPercentGoalIntake = data1[i].saturatedFatPercentGoalIntake;
+                        var munSaturatedFatIntake = data1[i].munSaturatedFatIntake;
+                        var munSaturatedFatPercentIntake = data1[i].munSaturatedFatPercentIntake;
+                        var mufaGoalIntake = data1[i].mufaGoalIntake;
+                        var mufaFatGoalPercentIntake = data1[i].mufaFatGoalPercentIntake;
+                        var pufaIntake = data1[i].pufaIntake;
+                        var pufaPercent = data1[i].pufaPercent;
+                        var pufaGoalIntake = data1[i].pufaGoalIntake;
+                        var pufaPercentGoalIntake = data1[i].pufaPercentGoalIntake;
+                        var transfatIntake = data1[i].transfatIntake;
+                        var transfatPercentIntake = data1[i].transfatPercentIntake;
+                        var transfatGoalIntake = data1[i].transfatGoalIntake;
+                        var transfatGoalPercentIntake = data1[i].transfatGoalPercentIntake;
+                        var cholestrolIntake = data1[i].cholestrolIntake;
+                        var cholestrolPercentIntake = data1[i].cholestrolPercentIntake;
+                        var cholestrolGoalIntake = data1[i].cholestrolGoalIntake;
+                        var cholestrolGoalPercentIntake = data1[i].cholestrolGoalPercentIntake;
+                        var sodiumIntake = data1[i].sodiumIntake;
+                        var sodiumPercentIntake = data1[i].sodiumPercentIntake;
+                        var sodiumGoalIntake = data1[i].sodiumGoalIntake;
+                        var sodiumPercentGoalIntake = data1[i].sodiumPercentGoalIntake;
+                        var calciumIntake = data1[i].calciumIntake;
+                        var calciumPercentIntake = data1[i].calciumPercentIntake;
+                        var calciumGoalIntake = data1[i].calciumGoalIntake;
+                        var calciumGoalPercentIntake = data1[i].calciumGoalPercentIntake;
+                        var vitamaincIntake = data1[i].vitamaincIntake;
+                        var vitamaincPercentIntake = data1[i].vitamaincPercentIntake;
+                        var vitamainCGoalIntake = data1[i].vitamainCGoalIntake;
+                        var vitamainCGoalPercentIntake = data1[i].vitamainCGoalPercentIntake;
+                        var ironIntake = data1[i].ironIntake;
+                        var ironPercentIntake = data1[i].ironPercentIntake;
+                        var ironGoalIntake = data1[i].ironGoalIntake;
+                        var ironGoalPercentIntake = data1[i].ironGoalPercentIntake;
+                        var fiberIntake = data1[i].fiberIntake;
+                        var fiberPercentIntake = data1[i].fiberPercentIntake;
+                        var fiberGoalIntake = data1[i].fiberGoalIntake;
+                        var fiberGoalPercentIntake = data1[i].fiberGoalPercentIntake;
+                        var caloriePercentFoodDistribution = data1[i].caloriePercentFoodDistribution;
+                        var carbPercentFoodDistribution = data1[i].carbPercentFoodDistribution;
+                        var sugarPercentDistribution = data1[i].sugarPercentDistribution;
+                        var proteinPercentDistribution = data1[i].proteinPercentDistribution;
+                        var fatPercentDistribution = data1[i].fatPercentDistribution;
+                        var saturatedFatPercentDistribution = data1[i].saturatedFatPercentDistribution;
+                        var munSaturatedFatPercentDistribution = data1[i].munSaturatedFatPercentDistribution;
+                        var pufaSaturatedFatPercentDistribution = data1[i].pufaSaturatedFatPercentDistribution;
+                        var transFatPercentDistribution = data1[i].transFatPercentDistribution;
+                        var sodiumPercentDistribution = data1[i].sodiumPercentDistribution;
+                        var calciumPercentDistribution = data1[i].calciumPercentDistribution;
+                        var vitamainCPercentDistribution = data1[i].vitamainCPercentDistribution;
+                        var ironPercentDistribution = data1[i].ironPercentDistribution;
+                        var fiberPercentDistribution = data1[i].fiberPercentDistribution;
+
+                        sql += "('" + userid + "', '"+recordDateTime+"','" + calorieIntake + "', '" + caloriePercentIntake + "', '" + calorieGoal + "', '" + caloriePercentGoal + "', '" + cabsIntake + "', '" + carbsPercentIntake + "', '" + carbsGoal + "', '" + carbsGoalPercent + "', '" + sugarIntake + "', '" + sugarPercentIntake + "', '" + sugarGoal + "', '" + sugarGoalPercent + "', '" + proteinIntake + "', '" + proteinPercent + "', '" + proteinGoal + "', '" + proteinPercentGoal + "', '" + fatIntake + "', '" + fatPercentIntake + "', '" + fatGoalIntake + "', '" + fatPercentGoalIntake + "', '" + saturatedFatIntake + "', '" + saturatedFatPercentIntake + "', '" + saturatedFatGoalIntake + "', '" + saturatedFatPercentGoalIntake + "', '" + munSaturatedFatIntake + "', '" + munSaturatedFatPercentIntake + "', '" + mufaGoalIntake + "', '" + mufaFatGoalPercentIntake + "', '" + pufaIntake + "', '" + pufaPercent + "', '" + pufaGoalIntake + "', '" + pufaPercentGoalIntake + "', '" + transfatIntake + "', '" + transfatPercentIntake + "', '" + transfatGoalIntake + "', '" + transfatGoalPercentIntake + "', '" + cholestrolIntake + "', '" + cholestrolPercentIntake + "', '" + cholestrolGoalIntake + "', '" + cholestrolGoalPercentIntake + "', '" + sodiumIntake + "', '" + sodiumPercentIntake + "', '" + sodiumGoalIntake + "', '" + sodiumPercentGoalIntake + "', '" + calciumIntake + "', '" + calciumPercentIntake + "', '" + calciumGoalIntake + "', '" + calciumGoalPercentIntake + "', '" + vitamaincIntake + "', '" + vitamaincPercentIntake + "', '" + vitamainCGoalIntake + "', '" + vitamainCGoalPercentIntake + "', '" + ironIntake + "', '" + ironPercentIntake + "', '" + ironGoalIntake + "', '" + ironGoalPercentIntake + "', '" + fiberIntake + "', '" + fiberPercentIntake + "', '" + fiberGoalIntake + "', '" + fiberGoalPercentIntake + "', '" + caloriePercentFoodDistribution + "', '" + carbPercentFoodDistribution + "', '" + sugarPercentDistribution + "', '" + proteinPercentDistribution + "', '" + fatPercentDistribution + "', '" + saturatedFatPercentDistribution + "', '" + munSaturatedFatPercentDistribution + "', '" + pufaSaturatedFatPercentDistribution + "', '" + transFatPercentDistribution + "', '" + sodiumPercentDistribution + "', '" + calciumPercentDistribution + "', '" + vitamainCPercentDistribution + "', '" + ironPercentDistribution + "', '" + fiberPercentDistribution + "'),";
+
+                        sql = sql.substr(0, sql.length);
+                    }
+
+                    var recordDateTime=data1[total - 1].recordDateTime;
+                    var calorieIntake = data1[total - 1].calorieIntake;
+                    var caloriePercentIntake = data1[total - 1].caloriePercentIntake;
+                    var calorieGoal = data1[total - 1].calorieGoal;
+                    var caloriePercentGoal = data1[total - 1].caloriePercentGoal;
+                    var cabsIntake = data1[total - 1].cabsIntake;
+                    var carbsPercentIntake = data1[total - 1].carbsPercentIntake;
+                    var carbsGoal = data1[total - 1].carbsGoal;
+                    var carbsGoalPercent = data1[total - 1].carbsGoalPercent;
+                    var sugarIntake = data1[total - 1].sugarIntake;
+                    var sugarPercentIntake = data1[total - 1].sugarPercentIntake;
+                    var sugarGoal = data1[total - 1].sugarGoal;
+                    var sugarGoalPercent = data1[total - 1].sugarGoalPercent;
+                    var proteinIntake = data1[total - 1].proteinIntake;
+                    var proteinPercent = data1[total - 1].proteinPercent;
+                    var proteinGoal = data1[total - 1].proteinGoal;
+                    var proteinPercentGoal = data1[total - 1].proteinPercentGoal;
+                    var fatIntake = data1[total - 1].fatIntake;
+                    var fatPercentIntake = data1[total - 1].fatPercentIntake;
+                    var fatGoalIntake = data1[total - 1].fatGoalIntake;
+                    var fatPercentGoalIntake = data1[total - 1].fatPercentGoalIntake;
+                    var saturatedFatIntake = data1[total - 1].saturatedFatIntake;
+                    var saturatedFatPercentIntake = data1[total - 1].saturatedFatPercentIntake;
+                    var saturatedFatGoalIntake = data1[total - 1].saturatedFatGoalIntake;
+                    var saturatedFatPercentGoalIntake = data1[total - 1].saturatedFatPercentGoalIntake;
+                    var munSaturatedFatIntake = data1[total - 1].munSaturatedFatIntake;
+                    var munSaturatedFatPercentIntake = data1[total - 1].munSaturatedFatPercentIntake;
+                    var mufaGoalIntake = data1[total - 1].mufaGoalIntake;
+                    var mufaFatGoalPercentIntake = data1[total - 1].mufaFatGoalPercentIntake;
+                    var pufaIntake = data1[total - 1].pufaIntake;
+                    var pufaPercent = data1[total - 1].pufaPercent;
+                    var pufaGoalIntake = data1[total - 1].pufaGoalIntake;
+                    var pufaPercentGoalIntake = data1[total - 1].pufaPercentGoalIntake;
+                    var transfatIntake = data1[total - 1].transfatIntake;
+                    var transfatPercentIntake = data1[total - 1].transfatPercentIntake;
+                    var transfatGoalIntake = data1[total - 1].transfatGoalIntake;
+                    var transfatGoalPercentIntake = data1[total - 1].transfatGoalPercentIntake;
+                    var cholestrolIntake = data1[total - 1].cholestrolIntake;
+                    var cholestrolPercentIntake = data1[total - 1].cholestrolPercentIntake;
+                    var cholestrolGoalIntake = data1[total - 1].cholestrolGoalIntake;
+                    var cholestrolGoalPercentIntake = data1[total - 1].cholestrolGoalPercentIntake;
+                    var sodiumIntake = data1[total - 1].sodiumIntake;
+                    var sodiumPercentIntake = data1[total - 1].sodiumPercentIntake;
+                    var sodiumGoalIntake = data1[total - 1].sodiumGoalIntake;
+                    var sodiumPercentGoalIntake = data1[total - 1].sodiumPercentGoalIntake;
+                    var calciumIntake = data1[total - 1].calciumIntake;
+                    var calciumPercentIntake = data1[total - 1].calciumPercentIntake;
+                    var calciumGoalIntake = data1[total - 1].calciumGoalIntake;
+                    var calciumGoalPercentIntake = data1[total - 1].calciumGoalPercentIntake;
+                    var vitamaincIntake = data1[total - 1].vitamaincIntake;
+                    var vitamaincPercentIntake = data1[total - 1].vitamaincPercentIntake;
+                    var vitamainCGoalIntake = data1[total - 1].vitamainCGoalIntake;
+                    var vitamainCGoalPercentIntake = data1[total - 1].vitamainCGoalPercentIntake;
+                    var ironIntake = data1[total - 1].ironIntake;
+                    var ironPercentIntake = data1[total - 1].ironPercentIntake;
+                    var ironGoalIntake = data1[total - 1].ironGoalIntake;
+                    var ironGoalPercentIntake = data1[total - 1].ironGoalPercentIntake;
+                    var fiberIntake = data1[total - 1].fiberIntake;
+                    var fiberPercentIntake = data1[total - 1].fiberPercentIntake;
+                    var fiberGoalIntake = data1[total - 1].fiberGoalIntake;
+                    var fiberGoalPercentIntake = data1[total - 1].fiberGoalPercentIntake;
+                    var caloriePercentFoodDistribution = data1[total - 1].caloriePercentFoodDistribution;
+                    var carbPercentFoodDistribution = data1[total - 1].carbPercentFoodDistribution;
+                    var sugarPercentDistribution = data1[total - 1].sugarPercentDistribution;
+                    var proteinPercentDistribution = data1[total - 1].proteinPercentDistribution;
+                    var fatPercentDistribution = data1[total - 1].fatPercentDistribution;
+                    var saturatedFatPercentDistribution = data1[total - 1].saturatedFatPercentDistribution;
+                    var munSaturatedFatPercentDistribution = data1[total - 1].munSaturatedFatPercentDistribution;
+                    var pufaSaturatedFatPercentDistribution = data1[total - 1].pufaSaturatedFatPercentDistribution;
+                    var transFatPercentDistribution = data1[total - 1].transFatPercentDistribution;
+                    var sodiumPercentDistribution = data1[total - 1].sodiumPercentDistribution;
+                    var calciumPercentDistribution = data1[total - 1].calciumPercentDistribution;
+                    var vitamainCPercentDistribution = data1[total - 1].vitamainCPercentDistribution;
+                    var ironPercentDistribution = data1[total - 1].ironPercentDistribution;
+                    var fiberPercentDistribution = data1[total - 1].fiberPercentDistribution;
+
+
+                    sql += "('" + userid + "', '"+recordDateTime+"','" + calorieIntake + "', '" + caloriePercentIntake + "', '" + calorieGoal + "', '" + caloriePercentGoal + "', '" + cabsIntake + "', '" + carbsPercentIntake + "', '" + carbsGoal + "', '" + carbsGoalPercent + "', '" + sugarIntake + "', '" + sugarPercentIntake + "', '" + sugarGoal + "', '" + sugarGoalPercent + "', '" + proteinIntake + "', '" + proteinPercent + "', '" + proteinGoal + "', '" + proteinPercentGoal + "', '" + fatIntake + "', '" + fatPercentIntake + "', '" + fatGoalIntake + "', '" + fatPercentGoalIntake + "', '" + saturatedFatIntake + "', '" + saturatedFatPercentIntake + "', '" + saturatedFatGoalIntake + "', '" + saturatedFatPercentGoalIntake + "', '" + munSaturatedFatIntake + "', '" + munSaturatedFatPercentIntake + "', '" + mufaGoalIntake + "', '" + mufaFatGoalPercentIntake + "', '" + pufaIntake + "', '" + pufaPercent + "', '" + pufaGoalIntake + "', '" + pufaPercentGoalIntake + "', '" + transfatIntake + "', '" + transfatPercentIntake + "', '" + transfatGoalIntake + "', '" + transfatGoalPercentIntake + "', '" + cholestrolIntake + "', '" + cholestrolPercentIntake + "', '" + cholestrolGoalIntake + "', '" + cholestrolGoalPercentIntake + "', '" + sodiumIntake + "', '" + sodiumPercentIntake + "', '" + sodiumGoalIntake + "', '" + sodiumPercentGoalIntake + "', '" + calciumIntake + "', '" + calciumPercentIntake + "', '" + calciumGoalIntake + "', '" + calciumGoalPercentIntake + "', '" + vitamaincIntake + "', '" + vitamaincPercentIntake + "', '" + vitamainCGoalIntake + "', '" + vitamainCGoalPercentIntake + "', '" + ironIntake + "', '" + ironPercentIntake + "', '" + ironGoalIntake + "', '" + ironGoalPercentIntake + "', '" + fiberIntake + "', '" + fiberPercentIntake + "', '" + fiberGoalIntake + "', '" + fiberGoalPercentIntake + "', '" + caloriePercentFoodDistribution + "', '" + carbPercentFoodDistribution + "', '" + sugarPercentDistribution + "', '" + proteinPercentDistribution + "', '" + fatPercentDistribution + "', '" + saturatedFatPercentDistribution + "', '" + munSaturatedFatPercentDistribution + "', '" + pufaSaturatedFatPercentDistribution + "', '" + transFatPercentDistribution + "', '" + sodiumPercentDistribution + "', '" + calciumPercentDistribution + "', '" + vitamainCPercentDistribution + "', '" + ironPercentDistribution + "', '" + fiberPercentDistribution + "')";
+
+
+                    db.foodhistory.addfoodtiming(sql).then(function(response) {
+
+                        var lastinsertid = response;
+                        data["error"] = 0;
+                        data["authResponse"] = "Food Result Added Successfully";
+                        //data["id"] = response;
+                        res.json(data);
+
+
+                    }).error(function(err) {
+                        res.json(err);
+                    });
+
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+                }
+            } else {
+                data["error"] = 1;
+                data["authResponse"] = "Token Required etc.";
+                res.json(data);
+            }
+        })
+        .error(function(err) {
+            res.json(err);
+        });
+
+
+
+    return res;
+};
+
+
 //================================================Add Food Timing =================================//////////////////
 exports.addfoodtiming = function(req, res) {
 
