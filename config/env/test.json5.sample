@@ -2,10 +2,10 @@
     PORT: 3001,
     // This is your MYSQL test database configuration
     db: {
-        name: "umch",
-        password: "umch!@#$",
-        username: "umch",
-        host: "139.59.226.189",
+       name: "WeHealthDB",
+        password: "umch1328",
+        username: "admin",
+        host: "umchdb-1.cjoluyso10tr.us-east-2.rds.amazonaws.com",
         port: 3306
     },
     app: {

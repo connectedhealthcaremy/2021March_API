@@ -41,3 +41,13 @@ exports.getLatestProducts = function(req, res) {
 
     return res;
 };
+
+exports.loadTesting=function(req, res){
+
+var data={"response":"working"}
+
+res.json(data);
+return res;
+
+
+}

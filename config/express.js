@@ -87,10 +87,10 @@ module.exports = function(app, passport) {
 	****************/
 
     //express session configuration
-    app.use(sessionMiddleware);
+    //app.use(sessionMiddleware);
 
     //connect flash for flash messages
-    app.use(flash());
+    //app.use(flash());
 
     //dynamic helpers
     app.use(helpers(config.app.name));

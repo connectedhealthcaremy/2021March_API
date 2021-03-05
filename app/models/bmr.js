@@ -11,6 +11,11 @@ module.exports = function(sequelize, DataTypes) {
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
 				
 				},
+                deleteBmr: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.DELETE});
+				
+				},
 			   getbmr: function (userid)
 			   {
 				   var sql = "SELECT bmrID, scaleDate AS scaleDate , bmrQty AS Qty from bmr WHERE userID='"+userid+"'";

@@ -11,9 +11,22 @@ module.exports = function(sequelize, DataTypes) {
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
 				
 				},
+				delete_oxygen: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.DELETE});
+				
+				},
 				lastAddsID: function (lastid)
 			   {
 				   var sql = "select id from oxygen where id >='"+lastid+"'";
+				    return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
+					
+				   },
+			  getoxygenPostDetails: function (id)
+			   {
+				   var sql = `SELECT user.userID, user.email, user.firstName, user.lastName, oxygen.oxygenlevel, oxygen.pulse, oxygen.recordDateTime 
+							  FROM WeHealthDB.oxygen inner join user on oxygen.user=user.email
+							  where oxygen.id=`+id+``;
 				    return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 					
 				   },
@@ -29,7 +42,7 @@ module.exports = function(sequelize, DataTypes) {
 				,
 			   getoxygen: function (userid)
 			   {
-				   var sql = "select id, user, oxygenlevel as oxygenlevel, pulse as pulse, recordDateTime as record_date_time, insertDate, notes as notes, deviceStatus as deviceStatus from oxygen where user='"+userid+"' AND isdeleted='0'";
+				   var sql = "select id, user, oxygenlevel as oxygenlevel, pulse as pulse, recordDateTime as record_date_time, insertDate, notes as notes, deviceStatus as deviceStatus , deviceuuid , deviceid from oxygen where user='"+userid+"' AND isdeleted='0'";
 				    return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 					
 				   },

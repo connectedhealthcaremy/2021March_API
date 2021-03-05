@@ -24,8 +24,7 @@ exports.addmymedicine = function(req, res) {
 		"error": 0,
 		"authResponse": ""
 	}
-
-
+	var LastIDs = [];
 
 	db.user.authUser(token).then(function(response) {
 			if (!!token) {
@@ -35,10 +34,10 @@ exports.addmymedicine = function(req, res) {
 					var email = response;
 					var deviceID = response[0].deviceID;
 
+					console.log("Total Count======================================================" + total);
 
-					var sql = "INSERT INTO mymedicine (medicineID, userID , shape, colour, variableDose, strengthSupplied, strengthTaken, medicineTake, unit, timingPerDay, reminderType, beforeActualTimeRemind, startDate, endDate, days, instruction, medicineTakeType, quantitySupplied, refilReminder, daysBeforeMedicineOut, dosageUnit) values ";
+					for (var i = 0; i <= total; i++) {
 
-					for (var i = 0; i < total - 1; i++) {
 						var medicineID = data1[i].medicineID;
 						var shape = data1[i].shape;
 						var colour = data1[i].colour;
@@ -61,62 +60,111 @@ exports.addmymedicine = function(req, res) {
                         var dosageUnit = data1[i].dosageUnit;
 						
 
+                        var sql = "INSERT INTO mymedicine (medicineID, userID , shape, colour, variableDose, strengthSupplied, strengthTaken, medicineTake, unit, timingPerDay, reminderType, beforeActualTimeRemind, startDate, endDate, days, instruction, medicineTakeType, quantitySupplied, refilReminder, daysBeforeMedicineOut, dosageUnit) values ";
+						sql += "('" + medicineID + "','" + userid + "','" + shape + "','" + colour + "','" + variableDose + "','" + strengthSupplied + "','" + strengthTaken + "','" + medicineTake + "','" + units + "','" + timingPerDay + "','" + reminderType + "','" + beforeActualTimeRemind + "','" + startDate + "','" + endDate + "','" + days + "','" + instruction + "','" + medicineTakeType + "','" + quantitySupplied + "','" + refilReminder + "', '" + daysBeforeMedicineOut + "', '"+dosageUnit+"')";
 
-						sql += "('" + medicineID + "','" + userid + "','" + shape + "','" + colour + "','" + variableDose + "','" + strengthSupplied + "','" + strengthTaken + "','" + medicineTake + "','" + units + "','" + timingPerDay + "','" + reminderType + "','" + beforeActualTimeRemind + "','" + startDate + "','" + endDate + "','" + days + "','" + instruction + "','" + medicineTakeType + "','" + quantitySupplied + "','" + refilReminder + "', '" + daysBeforeMedicineOut + "', '"+dosageUnit+"'),";
+						if (medicineID == '' || medicineID == 'undefined' || medicineID == null)
+						{
+						    medicineID = '0';
+						}
+						
+						console.log("Medicine ID =================================================== " + medicineID);
 
-						sql = sql.substr(0, sql.length);
+						var sql_DuplicateCheck = "select * from mymedicine where medicineID='" + medicineID + "' and  userID='" + userid + "'";
+
+						console.log(sql_DuplicateCheck);
+
+					    db.mymedicine.Selectmymedicinestatus(sql_DuplicateCheck).then(function (response_duplicate) {
+
+					        if (response_duplicate != '' && response_duplicate != null) {
+
+					            data["error"] = 0;
+					            data["authResponse"] = "my Medicine Already added.";
+					            data["id"] = response_duplicate[0].id;
+					            res.json(data);
+					        }
+
+					        else
+
+                                {
+					            console.log(sql);
+					            db.mymedicine.addmymedicine(sql).then(function (response) {
+
+					                /**
+                                     **get last inserted id,s
+                                     ***/
+					                var lastinsertid = response;
+					                //LastIDs.push(lastinsertid); // add at the end 
+					                //console.log(LastIDs);
+
+					                db.mymedicine.lastaddIDs(lastinsertid).then(function (response) {
+
+					                    data["error"] = 0;
+					                    data["authResponse"] = "my Medicine Added Successfully";
+					                    data["id"] = response;
+					                    res.json(data);
+
+					                }).error(function (err) {
+					                    res.json(err);
+					                });
+
+
+					            }).error(function (err) {
+					                res.json(err);
+					            });
+					        }
+						    //End 
+						}).error(function (err) {
+						    res.json(err);
+						});
 					}
 
-					var medicineID = data1[total - 1].medicineID;
-					var shape = data1[total - 1].shape;
-					var colour = data1[total - 1].colour;
-					var variableDose = data1[total - 1].variableDose;
-					var strengthSupplied = data1[total - 1].strengthSupplied;
-					var strengthTaken = data1[total - 1].strengthTaken;
-					var medicineTake = data1[total - 1].medicineTake;
-					var units = data1[total - 1].units;
-					var timingPerDay = data1[total - 1].timingPerDay;
-					var reminderType = data1[total - 1].reminderType;
-					var beforeActualTimeRemind = data1[total - 1].beforeActualTimeRemind;
-					var startDate = data1[total - 1].startDate;
-					var endDate = data1[total - 1].endDate;
-					var days = data1[total - 1].days;
-					var instruction = data1[total - 1].instruction;
-					var medicineTakeType = data1[total - 1].medicineTakeType;
-					var quantitySupplied = data1[total - 1].quantitySupplied;
-					var refilReminder = data1[total - 1].refilReminder;
-					var daysBeforeMedicineOut = data1[total - 1].daysBeforeMedicineOut;
-					var dosageUnit = data1[total - 1].dosageUnit;
+				
 
-					sql += "('" + medicineID + "','" + userid + "','" + shape + "','" + colour + "','" + variableDose + "','" + strengthSupplied + "','" + strengthTaken + "','" + medicineTake + "','" + units + "','" + timingPerDay + "','" + reminderType + "','" + beforeActualTimeRemind + "','" + startDate + "','" + endDate + "','" + days + "','" + instruction + "','" + medicineTakeType + "','" + quantitySupplied + "','" + refilReminder + "', '" + daysBeforeMedicineOut + "', '"+dosageUnit+"')";
-
-
-
-					db.mymedicine.addmymedicine(sql).then(function(response) {
-
-						/**
-						 **get last inserted id,s
-						 ***/
-						var lastinsertid = response;
-
-						db.mymedicine.lastaddIDs(lastinsertid).then(function(response) {
-
-							data["error"] = 0;
-							data["authResponse"] = "my Medicine Added Successfully";
-							data["id"] = response;
-							res.json(data);
-						}).error(function(err) {
-							res.json(err);
-						});
-
-
-					}).error(function(err) {
-						res.json(err);
-
-
-
-					});
-
+					//var medicineID = data1[total - 1].medicineID;
+					//var shape = data1[total - 1].shape;
+					//var colour = data1[total - 1].colour;
+					//var variableDose = data1[total - 1].variableDose;
+					//var strengthSupplied = data1[total - 1].strengthSupplied;
+					//var strengthTaken = data1[total - 1].strengthTaken;
+					//var medicineTake = data1[total - 1].medicineTake;
+					//var units = data1[total - 1].units;
+					//var timingPerDay = data1[total - 1].timingPerDay;
+					//var reminderType = data1[total - 1].reminderType;
+					//var beforeActualTimeRemind = data1[total - 1].beforeActualTimeRemind;
+					//var startDate = data1[total - 1].startDate;
+					//var endDate = data1[total - 1].endDate;
+					//var days = data1[total - 1].days;
+					//var instruction = data1[total - 1].instruction;
+					//var medicineTakeType = data1[total - 1].medicineTakeType;
+					//var quantitySupplied = data1[total - 1].quantitySupplied;
+					//var refilReminder = data1[total - 1].refilReminder;
+					//var daysBeforeMedicineOut = data1[total - 1].daysBeforeMedicineOut;
+					//var dosageUnit = data1[total - 1].dosageUnit;
+					//sql += "('" + medicineID + "','" + userid + "','" + shape + "','" + colour + "','" + variableDose + "','" + strengthSupplied + "','" + strengthTaken + "','" + medicineTake + "','" + units + "','" + timingPerDay + "','" + reminderType + "','" + beforeActualTimeRemind + "','" + startDate + "','" + endDate + "','" + days + "','" + instruction + "','" + medicineTakeType + "','" + quantitySupplied + "','" + refilReminder + "', '" + daysBeforeMedicineOut + "', '"+dosageUnit+"')";
+					//var sql_DuplicateCheck = "select * from mymedicine where myMedicineID='" + myMedicineID + "' and  userID='" + userid + "'";
+					//console.log(sql_DuplicateCheck);
+				    //db.mymedicine.Selectmymedicinestatus(sql_DuplicateCheck).then(function (response_duplicate) {
+					//db.mymedicine.addmymedicine(sql).then(function(response) {
+					//	/**
+					//	 **get last inserted id,s
+					//	 ***/
+					//	var lastinsertid = response;
+					//	db.mymedicine.lastaddIDs(lastinsertid).then(function(response) {
+					//		data["error"] = 0;
+					//		data["authResponse"] = "my Medicine Added Successfully";
+					//		data["id"] = response;
+                    //        res.json(data);
+					//	}).error(function(err) {
+					//		res.json(err);
+					//	});
+					//}).error(function(err) {
+					//	res.json(err);
+					//});
+                    //    //End 
+					//}).error(function (err) {
+					//    res.json(err);
+					//});
 
 				} else {
 					data["error"] = 1;
@@ -133,11 +181,8 @@ exports.addmymedicine = function(req, res) {
 			res.json(err);
 		});
 
-
-
 	return res;
 };
-
 
 ///////////===================================Update medicine======================================///////////////////////
 
@@ -145,7 +190,7 @@ exports.updatemymedicine = function(req, res) {
 
 	var userid = req.body.userid;
 	var token = req.body.token;
-	var myMedicineID = req.body.myMedicineID;
+	var myMedicineID2 = req.body.myMedicineID;
 	var data1 = req.body.data;
 
 	data1 = JSON.parse(data1);
@@ -157,18 +202,11 @@ exports.updatemymedicine = function(req, res) {
 		"authResponse": ""
 	}
 
-
-
 	db.user.authUser(token).then(function(response) {
 			if (!!token) {
 				if (response != '' && response != null) {
 
-
-
 					var email = response;
-
-					var email = response;
-
 
 					for (var i = 0; i < total - 1; i++) {
 							
@@ -181,20 +219,20 @@ exports.updatemymedicine = function(req, res) {
 					var strengthTaken = data1[i].strengthTaken;
 					var medicineTake = data1[i].medicineTake;
 					var units = data1[i].units;
-					var timingPerDay = data1[i].timingPerDay;
+                    var timingPerDay = data1[i].timingPerDay;
 					var reminderType = data1[i].reminderType;
 					var beforeActualTimeRemind = data1[i].beforeActualTimeRemind;
 					var startDate = data1[i].startDate;
 					var endDate = data1[i].endDate;
 					var days = data1[i].days;
-					var instruction = data1[i].instruction;
+                    var instruction = data1[i].instruction;
+                    var inserdatetime = data1[i].insertionDate;
 
 
-					
-					
-			//sql += "('" + medicineID + "','" + userid + "','" + shape + "','" + colour + "','" + variableDose + "','" + strengthSupplied + "','" + strengthTaken + "','" + medicineTake + "','" + units + "','" + timingPerDay + "','" + reminderType + "','" + beforeActualTimeRemind + "','" + startDate + "','" + endDate + "','" + days + "','" + instruction + "'),";
-			var sql = "UPDATE mymedicine SET  shape='" + shape + "', colour='" + colour + "', variableDose='" + variableDose + "', strengthSupplied='" + strengthSupplied + "', strengthTaken='" + strengthTaken + "', medicineTake='" + medicineTake + "', unit='" + units + "', timingPerDay='" + timingPerDay + "', reminderType='" + reminderType + "', beforeActualTimeRemind='" + beforeActualTimeRemind + "', startDate='" + startDate + "', endDate='" + endDate + "', days='" + days + "', instruction='" + instruction + "' where id='" + myMedicineID + "'";
-						db.mymedicine.updatemymedicine(sql).then(function(response) {}).error(function(err) {
+                        var sql = "UPDATE mymedicine SET  shape='" + shape + "', colour='" + colour + "', variableDose='" + variableDose + "', strengthSupplied='" + strengthSupplied + "', strengthTaken='" + strengthTaken + "', medicineTake='" + medicineTake + "', unit='" + units + "', timingPerDay='" + timingPerDay + "', reminderType='" + reminderType + "', beforeActualTimeRemind='" + beforeActualTimeRemind + "', startDate='" + startDate + "', endDate='" + endDate + "', days='" + days + "', instruction='" + instruction + "', insertDateTime='" + inserdatetime + "' where medicineID='" + myMedicineID + "'";
+
+
+                        db.mymedicine.updatemymedicine(sql).then(function (response) { }).error(function (err) {
 							res.json(err);
 						});
 
@@ -216,7 +254,7 @@ exports.updatemymedicine = function(req, res) {
 					var days = data1[total - 1].days;
 					var instruction = data1[total - 1].instruction;
 
-					var sql = "UPDATE mymedicine SET  shape='" + shape + "', colour='" + colour + "', variableDose='" + variableDose + "', strengthSupplied='" + strengthSupplied + "', strengthTaken='" + strengthTaken + "', medicineTake='" + medicineTake + "', unit='" + units + "', timingPerDay='" + timingPerDay + "', reminderType='" + reminderType + "', beforeActualTimeRemind='" + beforeActualTimeRemind + "', startDate='" + startDate + "', endDate='" + endDate + "', days='" + days + "', instruction='" + instruction + "' where id='" + myMedicineID + "'";
+                    var sql = "UPDATE mymedicine SET  shape='" + shape + "', colour='" + colour + "', variableDose='" + variableDose + "', strengthSupplied='" + strengthSupplied + "', strengthTaken='" + strengthTaken + "', medicineTake='" + medicineTake + "', unit='" + units + "', timingPerDay='" + timingPerDay + "', reminderType='" + reminderType + "', beforeActualTimeRemind='" + beforeActualTimeRemind + "', startDate='" + startDate + "', endDate='" + endDate + "', days='" + days + "', instruction='" + instruction + "' , insertDateTime='" + inserdatetime + "' where medicineID='" + myMedicineID + "'";
 
                  
 					db.mymedicine.updatemymedicine(sql).then(function(response) {
@@ -250,8 +288,6 @@ exports.updatemymedicine = function(req, res) {
 	return res;
 };
 
-
-
 ///////////////========================Get My Medicine Data=================================================/////////////////
 
 exports.getmymedicine = function(req, res) {
@@ -261,7 +297,8 @@ exports.getmymedicine = function(req, res) {
 	var data = {
 		"error": 0,
 		"authResponse": ""
-	}
+    }
+
 	if (!!token) {
 		///Authinticate user
 		db.user.authUser(token).then(function(response) {
@@ -447,6 +484,56 @@ exports.getmedicine = function(req, res) {
 	return res;
 };
 
+
+
+
+exports.getmedicineStatus = function (req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+    if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function (response) {
+            if (response != '' && response != null) {
+               // var email = response;
+                //res.json(email);
+                ///Get user info
+                db.medicine.getmedicineStatus(userid).then(function (response) {
+                    data["error"] = 0;
+                    data["authResponse"] = "Action Successful";
+                    data['Data'] = response;
+                    res.json(data);
+
+                })
+                    .error(function (err) {
+                        res.json(err);
+                    });
+
+            } else {
+                data["error"] = 1;
+                data["authResponse"] = "Authentication Failed.";
+                res.json(data);
+
+            }
+        })
+            .error(function (err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+    return res;
+};
+
+
 ///////////////////////=================Update MedicineStatus User===================================///////////////////////
 
 exports.updatemedcinestatus = function(req, res) {
@@ -464,8 +551,7 @@ exports.updatemedcinestatus = function(req, res) {
 		"error": 0,
 		"authResponse": ""
 	}
-
-
+    console.log(data1);
 
 	db.user.authUser(token).then(function(response) {
 			if (!!token) {
@@ -473,46 +559,61 @@ exports.updatemedcinestatus = function(req, res) {
 					var email = response;
 
 					var email = response;
-					var deviceID = response[0].deviceID;
+					var deviceID = response[0].deviceID;                 
 
+                  // for (var i = 0; i < total - 1; i++) {
 
-					var sql = "INSERT INTO mymedicinestatus (myMedicineID, userID , status, dateTime, timeTake, reason) values ";
+                        var myMedicineID = data1[0].myMedicineID;
+                        var status       = data1[0].status;
+                        var dateTime     = data1[0].dateTime;
+                        var timeTake     = data1[0].timeTaken;
+                        var reason       = data1[0].reason;
 
-					for (var i = 0; i < total - 1; i++) {
-						var myMedicineID = data1[i].myMedicineID;
-						var status = data1[i].status;
-						var dateTime = data1[i].dateTime;
-						var timeTake = data1[i].timeTaken;
-						var reason = data1[i].reason;
+                        var sql = "INSERT INTO mymedicinestatus (myMedicineID, userID , status, dateTime, timeTaken, reason) values ('" + myMedicineID + "','" + userid + "','" + status + "','" + dateTime + "', '" + timeTake + "', '" + reason + "')";
 
-						
+                        console.log(sql);
 
-						sql += "('" + myMedicineID + "','" + userid + "','" + status + "','" + dateTime + "', '"+timeTake+"', '"+reason+"'),";
+                        var sql2 = "select * from mymedicinestatus where dateTime='" + dateTime + "' and myMedicineID='" + myMedicineID + "' and  userID='" + userid + "'";
 
-						sql = sql.substr(0, sql.length);
-					}
+                        console.log(sql2);
+                     
+                        db.mymedicine.Selectmymedicinestatus(sql2).then(function (response) {
 
-					var myMedicineID = data1[total - 1].myMedicineID;
-					var status = data1[total - 1].status;
-					var dateTime = data1[total - 1].dateTime;
-					var timeTake = data1[total - 1].timeTaken;
-				    var reason = data1[total - 1].reason;
+                            console.log(response);
+                            if (response != '' && response != null) {
 
+                                //  var sqlUpdate = "UPDATE mymedicinestatus SET  myMedicineID='" + myMedicineID + "', userID='" + 
+                                //userid + "', status='" + status + "', dateTime='" + dateTime + "', timeTake='" + timeTake + "', reason='" + reason + "'  where dateTime='" + dateTime + "' and myMedicineID='" + myMedicineID + "' and  userID='" + userid + "'";
 
-					sql += "('" + myMedicineID + "','" + userid + "','" + status + "','" + dateTime + "', '"+timeTake+"', '"+reason+"')";
+                                var sqlUpdate = "UPDATE mymedicinestatus SET status='" + status + "', timeTaken='" + timeTake + "', reason='" + reason + "' where dateTime='" + dateTime + "' and myMedicineID='" + myMedicineID + "' and  userID='" + userid + "'";
 
+                                db.mymedicine.updatemymedicine(sqlUpdate).then(function (response) {
 
+                                    data["error"] = 0;
+                                    data["authResponse"] = "my Medicine Status Updated Successfully";
+                                    res.json(data);
 
-					db.mymedicine.addmymedicine(sql).then(function(response) {
+                                }).error(function (err) {
+                                    res.json(err);
+                                });
 
-						data["error"] = 0;
-						data["authResponse"] = "my Medicine Status Updated Successfully";
-						res.json(data);
+                            }
+                            else {
+                                db.mymedicine.addmymedicine(sql).then(function (response) {
 
-					}).error(function(err) {
-						res.json(err);
-					});
+                                    data["error"] = 0;
+                                    data["authResponse"] = "my Medicine Inserted Updated Successfully";
+                                    res.json(data);
 
+                                }).error(function (err) {
+                                    res.json(err);
+                                });
+                            }
+
+                        }).error(function (err) {
+                            res.json(err);
+                        });
+                   // }
 
 				} else {
 					data["error"] = 1;
@@ -537,51 +638,51 @@ exports.updatemedcinestatus = function(req, res) {
 
 ///////////////========================Get Medicine Data Status=================================================/////////////////
 
-exports.getmedicineStatus = function(req, res) {
-	var userid = req.query.userid;
-	var token = req.query.token;
+//exports.getmedicineStatus = function(req, res) {
+//	var userid = req.query.userid;
+//	var token = req.query.token;
 
-	var data = {
-		"error": 0,
-		"authResponse": ""
-	}
-	if (!!token) {
-		///Authinticate user
-		db.user.authUser(token).then(function(response) {
-				if (response != '' && response != null) {
-					var email = response;
-					//res.json(email);
-					///Get user info
-					db.mymedicine.getmedicindeStatus(userid).then(function(response) {
-							data["error"] = 0;
-							data["authResponse"] = "Action Successful";
-							data['Data'] = response;
-							res.json(data);
+//	var data = {
+//		"error": 0,
+//		"authResponse": ""
+//	}
+//	if (!!token) {
+//		///Authinticate user
+//		db.user.authUser(token).then(function(response) {
+//				if (response != '' && response != null) {
+//					var email = response;
+//					//res.json(email);
+//					///Get user info
+//					db.mymedicine.getmedicindeStatus(userid).then(function(response) {
+//							data["error"] = 0;
+//							data["authResponse"] = "Action Successful";
+//							data['Data'] = response;
+//							res.json(data);
 
-						})
-						.error(function(err) {
-							res.json(err);
-						});
+//						})
+//						.error(function(err) {
+//							res.json(err);
+//						});
 
-				} else {
-					data["error"] = 1;
-					data["authResponse"] = "Authentication Failed.";
-					res.json(data);
+//				} else {
+//					data["error"] = 1;
+//					data["authResponse"] = "Authentication Failed.";
+//					res.json(data);
 
-				}
-			})
-			.error(function(err) {
-				res.json(err);
-			});
-	} else {
-		data["error"] = 1;
-		data["authResponse"] = "Please provide all required data (i.e : token etc)";
-		res.json(data);
-		//connection.end()
-	}
+//				}
+//			})
+//			.error(function(err) {
+//				res.json(err);
+//			});
+//	} else {
+//		data["error"] = 1;
+//		data["authResponse"] = "Please provide all required data (i.e : token etc)";
+//		res.json(data);
+//		//connection.end()
+//	}
 
-	return res;
-};
+//	return res;
+//};
 
 ////=======================================Delete my medicine from table==================================================///////////////////////////	
 

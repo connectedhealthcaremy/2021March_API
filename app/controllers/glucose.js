@@ -6,6 +6,8 @@
 /*var _ = require('lodash');*/
 var db = require('../../config/sequelize');
 var nodemailer = require("nodemailer");
+var FCM = require('fcm-node');
+var moment = require('moment');
 
 //============================================Add user Glucose goal============================================/////////////////
 exports.addglucosegoal = function(req, res) {
@@ -22,25 +24,72 @@ exports.addglucosegoal = function(req, res) {
 	}
 
 
+	if(total>0){
+		db.user.authUser(token).then(function(response) {
+				if (!!token) {
+					if (response != '' && response != null) {
 
-	db.user.authUser(token).then(function(response) {
-			if (!!token) {
-				if (response != '' && response != null) {
+						db.glucose_goal.checkgoal(userid).then(function(response) {
 
-					db.glucose_goal.checkgoal(userid).then(function(response) {
-
-						if (response != '' && response != null) {
+							if (response != '' && response != null) {
 
 
-							var id = response[0].id;
+								var id = response[0].id;
 
-							if (!!id) {
+								if (!!id) {
+
+									/************************
+									 ***Update Glucose Values
+									*************************/
+									var sql = "UPDATE glucose_goal SET ";
+
+
+									for (var i = 0; i < total - 1; i++) {
+										var goalBloodGlucose_Start_BM = data1[i].goalBloodGlucose_Start_BM;
+										var goalBloodGlucose_Start_AM = data1[i].goalBloodGlucose_Start_AM;
+										var goalBloodGlucose_Start_BT = data1[i].goalBloodGlucose_Start_BT;
+										var goalBloodGlucose_End_BM = data1[i].goalBloodGlucose_End_BM;
+										var goalBloodGlucose_End_AM = data1[i].goalBloodGlucose_End_AM;
+										var goalBloodGlucose_End_BT = data1[i].goalBloodGlucose_End_BT;
+										var notification = data1[i].notification;
+										//sql += "('" + userid + "','" + goalBloodGlucose_Start_BM + "','" + goalBloodGlucose_Start_AM + "','" + goalBloodGlucose_Start_BT + "','" + goalBloodGlucose_End_BM + "','" + goalBloodGlucose_End_AM + "','" + goalBloodGlucose_End_BT + "'),";
+
+										sql = sql.substr(0, sql.length);
+									}
+
+									var goalBloodGlucose_Start_BM = data1[total - 1].goalBloodGlucose_Start_BM;
+									var goalBloodGlucose_Start_AM = data1[total - 1].goalBloodGlucose_Start_AM;
+									var goalBloodGlucose_Start_BT = data1[total - 1].goalBloodGlucose_Start_BT;
+									var goalBloodGlucose_End_BM = data1[total - 1].goalBloodGlucose_End_BM;
+									var goalBloodGlucose_End_AM = data1[total - 1].goalBloodGlucose_End_AM;
+									var goalBloodGlucose_End_BT = data1[total - 1].goalBloodGlucose_End_BT;
+									var notification = data1[total - 1].notification;
+
+									sql += "goalBloodGlucose_Start_BM='" + goalBloodGlucose_Start_BM + "',goalBloodGlucose_Start_AM='" + goalBloodGlucose_Start_AM + "',goalBloodGlucose_Start_BT='" + goalBloodGlucose_Start_BT + "',goalBloodGlucose_End_BM='" + goalBloodGlucose_End_BM + "',goalBloodGlucose_End_AM='" + goalBloodGlucose_End_AM + "',goalBloodGlucose_End_BT='" + goalBloodGlucose_End_BT + "',notification='" + notification + "'  WHERE id='" + id + "'; ";
+
+
+									db.glucose_goal.updateglucosegoal(sql).then(function(response) {
+
+										data["error"] = 0;
+										data["authResponse"] = "Glucose goal Updated Successfully";
+										res.json(data);
+
+									}).error(function(err) {
+										res.json(err);
+									});
+
+								} else {
+									data["error"] = 0;
+									data["authResponse"] = "Server Id Required !.";
+									res.json(data);
+								}
+
+							} else {
 
 								/************************
-								 ***Update Glucose Values
-								 *************************/
-								var sql = "UPDATE glucose_goal SET ";
-
+								 **** Add New Goal
+								*********************/
+								var sql = "INSERT INTO glucose_goal (userID,goalBloodGlucose_Start_BM,goalBloodGlucose_Start_AM, goalBloodGlucose_Start_BT, goalBloodGlucose_End_BM, goalBloodGlucose_End_AM, goalBloodGlucose_End_BT, notification) values ";
 
 								for (var i = 0; i < total - 1; i++) {
 									var goalBloodGlucose_Start_BM = data1[i].goalBloodGlucose_Start_BM;
@@ -49,7 +98,8 @@ exports.addglucosegoal = function(req, res) {
 									var goalBloodGlucose_End_BM = data1[i].goalBloodGlucose_End_BM;
 									var goalBloodGlucose_End_AM = data1[i].goalBloodGlucose_End_AM;
 									var goalBloodGlucose_End_BT = data1[i].goalBloodGlucose_End_BT;
-									//sql += "('" + userid + "','" + goalBloodGlucose_Start_BM + "','" + goalBloodGlucose_Start_AM + "','" + goalBloodGlucose_Start_BT + "','" + goalBloodGlucose_End_BM + "','" + goalBloodGlucose_End_AM + "','" + goalBloodGlucose_End_BT + "'),";
+									var notification= data1[i].notification;
+									sql += "('" + userid + "','" + goalBloodGlucose_Start_BM + "','" + goalBloodGlucose_Start_AM + "','" + goalBloodGlucose_Start_BT + "','" + goalBloodGlucose_End_BM + "','" + goalBloodGlucose_End_AM + "','" + goalBloodGlucose_End_BT + "','"+notification+"'),";
 
 									sql = sql.substr(0, sql.length);
 								}
@@ -60,87 +110,48 @@ exports.addglucosegoal = function(req, res) {
 								var goalBloodGlucose_End_BM = data1[total - 1].goalBloodGlucose_End_BM;
 								var goalBloodGlucose_End_AM = data1[total - 1].goalBloodGlucose_End_AM;
 								var goalBloodGlucose_End_BT = data1[total - 1].goalBloodGlucose_End_BT;
+								var notification = data1[total - 1].notification;
+								sql += "('" + userid + "','" + goalBloodGlucose_Start_BM + "','" + goalBloodGlucose_Start_AM + "','" + goalBloodGlucose_Start_BT + "','" + goalBloodGlucose_End_BM + "','" + goalBloodGlucose_End_AM + "','" + goalBloodGlucose_End_BT + "','"+notification+"')";
 
-								sql += "goalBloodGlucose_Start_BM='" + goalBloodGlucose_Start_BM + "',goalBloodGlucose_Start_AM='" + goalBloodGlucose_Start_AM + "',goalBloodGlucose_Start_BT='" + goalBloodGlucose_Start_BT + "',goalBloodGlucose_End_BM='" + goalBloodGlucose_End_BM + "',goalBloodGlucose_End_AM='" + goalBloodGlucose_End_AM + "',goalBloodGlucose_End_BT='" + goalBloodGlucose_End_BT + "' WHERE id='" + id + "'; ";
 
-
-								db.glucose_goal.updateglucosegoal(sql).then(function(response) {
+								db.glucose_goal.addglucosegoal(sql).then(function(response) {
 
 									data["error"] = 0;
-									data["authResponse"] = "Glucose goal Updated Successfully";
+									data["authResponse"] = "Glucose goal Added Successfully";
 									res.json(data);
 
 								}).error(function(err) {
 									res.json(err);
 								});
 
-							} else {
-								data["error"] = 0;
-								data["authResponse"] = "Server Id Required !.";
-								res.json(data);
+
 							}
 
-						} else {
+						});
 
-							/************************
-							 **** Add New Goal
-							 *********************/
-							var sql = "INSERT INTO glucose_goal (userID,goalBloodGlucose_Start_BM,goalBloodGlucose_Start_AM, goalBloodGlucose_Start_BT, goalBloodGlucose_End_BM, goalBloodGlucose_End_AM, goalBloodGlucose_End_BT) values ";
-
-							for (var i = 0; i < total - 1; i++) {
-								var goalBloodGlucose_Start_BM = data1[i].goalBloodGlucose_Start_BM;
-								var goalBloodGlucose_Start_AM = data1[i].goalBloodGlucose_Start_AM;
-								var goalBloodGlucose_Start_BT = data1[i].goalBloodGlucose_Start_BT;
-								var goalBloodGlucose_End_BM = data1[i].goalBloodGlucose_End_BM;
-								var goalBloodGlucose_End_AM = data1[i].goalBloodGlucose_End_AM;
-								var goalBloodGlucose_End_BT = data1[i].goalBloodGlucose_End_BT;
-								sql += "('" + userid + "','" + goalBloodGlucose_Start_BM + "','" + goalBloodGlucose_Start_AM + "','" + goalBloodGlucose_Start_BT + "','" + goalBloodGlucose_End_BM + "','" + goalBloodGlucose_End_AM + "','" + goalBloodGlucose_End_BT + "'),";
-
-								sql = sql.substr(0, sql.length);
-							}
-
-							var goalBloodGlucose_Start_BM = data1[total - 1].goalBloodGlucose_Start_BM;
-							var goalBloodGlucose_Start_AM = data1[total - 1].goalBloodGlucose_Start_AM;
-							var goalBloodGlucose_Start_BT = data1[total - 1].goalBloodGlucose_Start_BT;
-							var goalBloodGlucose_End_BM = data1[total - 1].goalBloodGlucose_End_BM;
-							var goalBloodGlucose_End_AM = data1[total - 1].goalBloodGlucose_End_AM;
-							var goalBloodGlucose_End_BT = data1[total - 1].goalBloodGlucose_End_BT;
-							sql += "('" + userid + "','" + goalBloodGlucose_Start_BM + "','" + goalBloodGlucose_Start_AM + "','" + goalBloodGlucose_Start_BT + "','" + goalBloodGlucose_End_BM + "','" + goalBloodGlucose_End_AM + "','" + goalBloodGlucose_End_BT + "')";
-
-
-							db.glucose_goal.addglucosegoal(sql).then(function(response) {
-
-								data["error"] = 0;
-								data["authResponse"] = "Glucose goal Added Successfully";
-								res.json(data);
-
-							}).error(function(err) {
-								res.json(err);
-							});
-
-
-						}
-
-					});
-
+					} else {
+						data["error"] = 1;
+						data["authResponse"] = "Authentication Failed.";
+						res.json(data);
+					}
 				} else {
 					data["error"] = 1;
-					data["authResponse"] = "Authentication Failed.";
+					data["authResponse"] = "Token Required etc.";
 					res.json(data);
 				}
-			} else {
-				data["error"] = 1;
-				data["authResponse"] = "Token Required etc.";
-				res.json(data);
-			}
-		})
-		.error(function(err) {
-			res.json(err);
-		});
+			})
+			.error(function(err) {
+				res.json(err);
+			});
 
+		return res;
 
-
-	return res;
+	}else{
+		data["error"] = 0;
+		data["authResponse"] = "No data is sent. data1.length : ${total}";
+		res.json(data);
+		return res;
+	}
 };
 
 ///////////====================================Update Glucose goal=======================================////////////////////////
@@ -336,98 +347,185 @@ exports.getglucosegoal = function(req, res) {
 
 //============================================Add user Glucose ============================================/////////////////
 exports.addglucose = function(req, res) {
-
+	console.log("Enter addglucose controller");
 	var userid = req.body.userid;
 	var token = req.body.token;
 	var data1 = req.body.data;
-	data1 = JSON.parse(data1);
-	var total = data1.length;
 	var data = {
 		"error": 0,
 		"authResponse": ""
 	}
+	console.log("addglucose's data1 : ", data1);
+	console.log("addglucose's typeof data1 : ", typeof data1);
+
+
+	if(data1.length > 0){
+		var userController = require('../../app/controllers/user');
+		userController.recordRawData(userid, "insertBloodGlucoseLevel", "data : "+req.body.data+", parameters : []");
+
+
+		if(typeof data1 == "undefined" || data1 == undefined){
+			console.log("skip -> data1 : ", data1);
+
+			data["error"] = 0 ;
+			data["authResponse"] = "No data is sent";
+			res.json(data);
+			return res;
+		}else{
+			
+
+		data1 = JSON.parse(data1);
+		var total = data1.length;
+
+			db.user.authUser(token).then(function(response) {
+					if (!!token) {
+						if (response != '' && response != null) {
+
+							var email = response[0].email;
+							var username = response[0].username;
+
+							var firstName = response[0].firstName;
+							var lastName = response[0].lastName;
+
+
+							var sqlDelete ="";
+							var array_dateTime = '';
+							var sql = "INSERT INTO glucose(user,glucoselevel,recordDateTime,mealtype,notes,deviceStatus,unit,deviceuuid,deviceid)  values ";
+							console.log("before enter for loop");
+							for (var i = 0; i < total - 1; i++) {
+								var glucose_level = data1[i].glucose_level;
+								console.log("GlucoseLvl : " + glucose_level);
+								glucose_level = Math.round(glucose_level * 100) / 100;
+								var record_datetime = data1[i].record_datetime;
+								var meal_type = data1[i].meal_type;
+								var notes = data1[i].notes;
+								var deviceStatus = data1[i].deviceStatus;
+								var unit = data1[i].unit;
+								var deviceuuid = data1[i].deviceuuid;
+								var deviceid = data1[i].deviceid;
+
+								if(unit == '' || unit === undefined){unit='mmol/L';} 
+								if(deviceuuid == '' || deviceuuid === undefined){deviceuuid='';} 
+								if(deviceid == '' || deviceid === undefined){deviceid='';} 
+								
+								array_dateTime+= "'"+record_datetime+"',";
+								sql += "('" + username + "','" + glucose_level + "','" + record_datetime + "','" + meal_type + "','" + notes + "','" + deviceStatus + "','" + unit + "','" + deviceuuid + "','" + deviceid + "'),";
+
+								///bg_alert(userid, email, firstName, lastName, glucose_level, record_datetime, meal_type); 
+
+								sql = sql.substr(0, sql.length);
+							}
+							var glucose_level = data1[total - 1].glucose_level;
+							glucose_level = Math.round(glucose_level * 100) / 100;
+							var record_datetime = data1[total - 1].record_datetime;
+							var meal_type = data1[total - 1].meal_type;
+							var notes = data1[total - 1].notes;
+							var deviceStatus = data1[total - 1].deviceStatus;
+							var unit = data1[total - 1].unit;
+							var deviceuuid = data1[total - 1].deviceuuid;
+							var deviceid = data1[total - 1].deviceid;
+
+							if(unit == '' || unit === undefined){unit='mmol/L';}
+							if(deviceuuid == '' || deviceuuid === undefined){deviceuuid='';} 
+							if(deviceid == '' || deviceid === undefined){deviceid='';} 
+
+							array_dateTime+= "'"+record_datetime+"'";
+							sql += "('" + username + "','" + glucose_level + "','" + record_datetime + "','" + meal_type + "','" + notes + "','" + deviceStatus + "','" + unit + "','" + deviceuuid + "','" + deviceid + "')";
+
+							///bg_alert(userid, email, firstName, lastName, glucose_level, record_datetime, meal_type);
+							
+							
+							/*********** Delete The Existing record ****************/
+							sqlDelete = "DELETE FROM glucose where recordDateTime IN  ("+array_dateTime+")";
+							/********** End Delete *********************************/ 
+						// db.glucose.delete_Glucose(sqlDelete).then(function(response) {
+								
+							db.glucose.addglucose(sql).then(function(response) {
+							///get last inserted ids
+
+								var lastinsertid = response;
+								db.glucose.lastaddIDs(lastinsertid).then(function(response) { 
+
+									data["error"] = 0;
+									data["authResponse"] = "Glucose Added Successfully";
+									data['id'] = response;
+
+									///post_bg_alert(response);
+									///remove_duplicate_glucose();
+									
+									res.json(data);
+								}).error(function(err) {
+									res.json(err);
+								});
+
+
+							}).error(function(err) {
+								res.json(err);
+							});
+
+						//}); ////End Delete operation
 
 
 
-	db.user.authUser(token).then(function(response) {
-			if (!!token) {
-				if (response != '' && response != null) {
-
-					var email = response[0].email;
-
-					var firstName = response[0].firstName;
-					var lastName = response[0].lastName;
-
-
-
-					var sql = "INSERT INTO glucose(user,glucoselevel,recordDateTime,mealtype,notes,deviceStatus)  values ";
-
-					for (var i = 0; i < total - 1; i++) {
-						var glucose_level = data1[i].glucose_level;
-						glucose_level = Math.round(glucose_level * 100) / 100;
-						var record_datetime = data1[i].record_datetime;
-						var meal_type = data1[i].meal_type;
-						var notes = data1[i].notes;
-						var deviceStatus = data1[total - 1].deviceStatus;
-						sql += "('" + email + "','" + glucose_level + "','" + record_datetime + "','" + meal_type + "','" + notes + "','" + deviceStatus + "'),";
-
-						bg_alert(userid, email, firstName, lastName, glucose_level, record_datetime, meal_type);
-
-						sql = sql.substr(0, sql.length);
-					}
-					var glucose_level = data1[total - 1].glucose_level;
-					glucose_level = Math.round(glucose_level * 100) / 100;
-					var record_datetime = data1[total - 1].record_datetime;
-					var meal_type = data1[total - 1].meal_type;
-					var notes = data1[total - 1].notes;
-					var deviceStatus = data1[total - 1].deviceStatus;
-					sql += "('" + email + "','" + glucose_level + "','" + record_datetime + "','" + meal_type + "','" + notes + "','" + deviceStatus + "')";
-
-					bg_alert(userid, email, firstName, lastName, glucose_level, record_datetime, meal_type);
-
-
-					db.glucose.addglucose(sql).then(function(response) {
-
-						
-						///get last inserted ids
-						
-						var lastinsertid = response;
-						db.glucose.lastaddIDs(lastinsertid).then(function(response) {
-
-							data["error"] = 0;
-							data["authResponse"] = "Glucose Added Successfully";
-							data['id'] = response;
+						} else {
+							data["error"] = 1;
+							data["authResponse"] = "Authentication Failed.";
 							res.json(data);
-						}).error(function(err) {
-							res.json(err);
-						});
+						}
+					} else {
+						data["error"] = 1;
+						data["authResponse"] = "Token Required etc.";
+						res.json(data);
+					}
+				})
+				.error(function(err) {
+					res.json(err);
+				});
+		}
 
 
-					}).error(function(err) {
-						res.json(err);
-					});
- 
+
+		return res;
+	
+	}
+}
 
 
-				} else {
-					data["error"] = 1;
-					data["authResponse"] = "Authentication Failed.";
-					res.json(data);
-				}
-			} else {
-				data["error"] = 1;
-				data["authResponse"] = "Token Required etc.";
-				res.json(data);
-			}
-		})
-		.error(function(err) {
-			res.json(err);
+function remove_duplicate_glucose(){   
+console.log(':::::::::::::::::::: Glucose Removal Working');
+	var runner = require("child_process");
+	var phpScriptPath = __dirname+"/../phpFiles/remove_glucose.php";   
+	var argsString = "1"+","+"1";
+	runner.exec("php " + phpScriptPath + " " +argsString, function(err, phpResponse, stderr) {
+	if(err) console.log(err); /* log error */
+	console.log( phpResponse );
+	});
+
+}
+
+///////////////====================Get Details based on IDs and Post Blood glucose alert ==================================================//////////////////
+function post_bg_alert(id_array){
+
+
+		id_array.forEach(function(value) {
+         
+         db.glucose.getBGPostDetails(value.id).then(function(response){
+   
+         	bg_alert(response[0].userID,
+         	         response[0].email,
+         	         response[0].firstName,
+         	         response[0].lastName,
+         	         response[0].glucoselevel,
+         	         response[0].recordDateTime,
+         	         response[0].mealtype);   
+
+         }).error(function(err) {
+				  console.log(err);
+		 });
+
 		});
 
-
-
-	return res;
-};
+}
 
 ///////////////========================Alert For Blood Glucose=================================================/////////////////
 
@@ -447,6 +545,10 @@ function bg_alert(userid, user_email, firstName, lastName, glucose_level, record
 				if (parseFloat(glucose_level) < parseFloat(goalBloodGlucose_Start_BM) || parseFloat(glucose_level) > parseFloat(goalBloodGlucose_End_BM)) {
 					///send email to user himself
 					bg_email_alert(user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+					/////send push notification
+					sendAndroidNotification(user_email);
+					///add notifications to database
+					add_notification_db(userid, user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type)
 
 					///get user Family Emails Emails
 					db.bp.getfamilyEmails(userid).then(function(response) {
@@ -455,7 +557,8 @@ function bg_alert(userid, user_email, firstName, lastName, glucose_level, record
 						response.forEach(function(response, index) {
 							///Send Emails To Next Of Kin
 							bg_email_alert(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
-
+							/////send push notification
+							sendAndroidNotification(response.email);
 						});
 
 					}).error(function(err) {
@@ -475,6 +578,27 @@ function bg_alert(userid, user_email, firstName, lastName, glucose_level, record
 				if (parseFloat(glucose_level) < parseFloat(goalBloodGlucose_Start_BM) || parseFloat(glucose_level) > parseFloat(goalBloodGlucose_End_BM)) {
 					///no Next of kin found and send email to user himself
 					bg_email_alert(user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+					/////send push notification
+					sendAndroidNotification(user_email);
+					///add notifications to database
+					add_notification_db(userid, user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type)
+
+					///get user Emails of next of kin
+					db.bp.getfamilyEmails(userid).then(function(response) {
+
+
+						response.forEach(function(response, index) {
+							///Send Emails To Next Of Kin
+							bg_email_alert(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+							/////send push notification
+							sendAndroidNotification(response.email);
+							////Add notification database for next of kin
+							add_notification_db_next_kin(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+						});
+
+					}).error(function(err) {
+						res.json(err);
+					});
 				}
 
 			}
@@ -486,7 +610,7 @@ function bg_alert(userid, user_email, firstName, lastName, glucose_level, record
 
 
 	} else {
-		
+
 		///After Meal or Pre Bed
 		db.glucose_goal.checkgoal(userid).then(function(response) {
 
@@ -497,19 +621,26 @@ function bg_alert(userid, user_email, firstName, lastName, glucose_level, record
 				var goalBloodGlucose_End_AM = (response[0].goalBloodGlucose_End_AM == '0.00') ? 8.50 : response[0].goalBloodGlucose_End_AM;
 
 				if (parseFloat(glucose_level) < parseFloat(goalBloodGlucose_Start_AM) || parseFloat(glucose_level) > parseFloat(goalBloodGlucose_End_AM)) {
-					
+
 
 					///send email to user himself
 					bg_email_alert(user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
-					///get user Emails
+					/////send push notification
+					sendAndroidNotification(user_email);
+					///add notifications to database
+					add_notification_db(userid, user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type)
 
+					///get user Emails
 					db.bp.getfamilyEmails(userid).then(function(response) {
 
 
 						response.forEach(function(response, index) {
 							///Send Emails To Next Of Kin
-								bg_email_alert(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
-
+							bg_email_alert(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+							/////send push notification
+							sendAndroidNotification(response.email);
+							////Add notification database for next of kin
+							add_notification_db_next_kin(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
 						});
 
 					}).error(function(err) {
@@ -529,6 +660,28 @@ function bg_alert(userid, user_email, firstName, lastName, glucose_level, record
 				if (parseFloat(glucose_level) < parseFloat(goalBloodGlucose_Start_AM) || parseFloat(glucose_level) > parseFloat(goalBloodGlucose_End_AM)) {
 					///no Next of kin found and send email to user himself
 					bg_email_alert(user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+					/////send push notification
+					sendAndroidNotification(user_email);
+					///add notifications to database
+					add_notification_db(userid, user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type)
+
+					///get user Emails of next of kin
+					db.bp.getfamilyEmails(userid).then(function(response) {
+
+
+						response.forEach(function(response, index) {
+							///Send Emails To Next Of Kin
+							bg_email_alert(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+							/////send push notification
+							sendAndroidNotification(response.email);
+							////Add notification database for next of kin
+							add_notification_db_next_kin(response.email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type);
+						});
+
+					}).error(function(err) {
+						res.json(err);
+					});
+
 				}
 
 			}
@@ -546,24 +699,73 @@ function bg_alert(userid, user_email, firstName, lastName, glucose_level, record
 	 **************************/
 
 
-	
+
 }
+///////////////========================Add Notification to database for Next Of Kin===========================================================//////////////////////
+
+function add_notification_db_next_kin(email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type) {
+
+	///8022=chief team userid
+	db.user.checkByname(email).then(function(response) {
+			var userids = response[0].userID;
+
+			var sub = "Health Alert : " + firstName + " " + lastName + " has abnormal BG at " + record_datetime;
+			var body = firstName + " " + lastName + " Blood Glucose Readings are not in control:<br><b>Blood Glucose  </b> : " + glucose_level + " mmol/L - " + meal_type + "   <br><br>Recommended Blood Glucose Control <br><b> Pre-meal (mmol/L): </b> " + goalBloodGlucose_Start_BM + " - " + goalBloodGlucose_End_BM + "<br><b>post-meal (mmol/L):</b> : " + goalBloodGlucose_Start_AM + " - " + goalBloodGlucose_End_AM + "<br>";
+
+			var sql = "INSERT INTO notification (`fromUserID`, `toUserID`, `subject`, `details`) VALUES ('8022', '" + userids + "', '" + sub + "', '" + body + "')";
+
+			db.bp.addbp(sql).then(function(response) {
+
+			}).error(function(err) {
+				//res.json(err);
+			});
+
+
+		})
+		.error(function(err) {
+			//res.json(err);
+			data['push'] = err;
+		});
+
+
+}
+
+///////////////========================Add Notification to database===========================================================//////////////////////
+
+function add_notification_db(userid, user_email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type) {
+
+	///8022=chief team userid
+
+	var sub = "Health Alert : " + firstName + " " + lastName + " has abnormal BG at " + record_datetime;
+	var body = firstName + " " + lastName + " Blood Glucose Readings are not in control:<br><b>Blood Glucose  </b> : " + glucose_level + " mmol/L - " + meal_type + "   <br><br>Recommended Blood Glucose Control <br><b> Pre-meal (mmol/L): </b> " + goalBloodGlucose_Start_BM + " - " + goalBloodGlucose_End_BM + "<br><b>post-meal (mmol/L):</b> : " + goalBloodGlucose_Start_AM + " - " + goalBloodGlucose_End_AM + "<br>";
+
+	var sql = "INSERT INTO notification (`fromUserID`, `toUserID`, `subject`, `details`) VALUES ('8022', '" + userid + "', '" + sub + "', '" + body + "')";
+
+	db.bp.addbp(sql).then(function(response) {
+
+	}).error(function(err) {
+		//res.json(err);
+	});
+
+}
+
 ///////////////========================Email Sending Blood Glucose=================================================/////////////////
 function bg_email_alert(email, firstName, lastName, record_datetime, glucose_level, goalBloodGlucose_Start_BM, goalBloodGlucose_End_BM, goalBloodGlucose_Start_AM, goalBloodGlucose_End_AM, meal_type) {
 
 
-	var date_time = record_datetime.split(' ');
-	var date = date_time[0].split('-');
-	var record_time = date[2] + "-" + date[1] + "-" + date[0] + " " + date_time[1];
-
+	//var date_time = record_datetime.split(' ');
+	//var date = date_time[0].split('-');
+	//var record_time = date[2] + "-" + date[1] + "-" + date[0] + " " + date_time[1];
+    var record_time=moment.utc(record_datetime).format("YYYY-MM-DD HH:mm:ss");
 	/***********************
 	 **Email Notification
 	 *************************/
+
 	var smtpTransport = nodemailer.createTransport("SMTP", {
 		service: "Gmail", // sets automatically host, port and connection security settings
 		auth: {
 			user: "chief.umch@gmail.com",
-			pass: "umch1328"
+			pass: "um1328ch"
 		}
 	});
 	smtpTransport.sendMail({ //email options
@@ -586,6 +788,70 @@ function bg_email_alert(email, firstName, lastName, record_datetime, glucose_lev
 	 ********************/
 
 }
+
+///////////////========================Push Notification For Abnormal Blood Glucose=================================================/////////////////
+function sendAndroidNotification(email) {
+
+
+
+	var data = {
+		"error": 0,
+		"authResponse": "",
+		"push": ""
+	}
+
+
+	db.notificationDevices.getdevicebyuseremail(email).then(function(response) {
+			if (response != '' && response != null) {
+
+				data["error"] = 0;
+				data["authResponse"] = "Action Successful";
+				data['Data'] = response[0].deviceID;
+				var pushtoken = response[0].deviceID;
+
+				if (pushtoken != '' && pushtoken != null) {
+
+					var subject = response[0].firstName + ' ' + response[0].lastName + " Blood Glucose Readings are not in control";
+
+					var serverKey = 'AAAAz_fpkI4:APA91bFgvOvgp7Y4VxluMofV_UDSLVl_4a4kgP-cPCnAY1i7L_tckclMOtD67GjJWgIJ6lZ_42EWTAD20p-BjeGc_HrNSEj3stmUEcxoISF2NNbSwiboQywtwKnmmyhRh0_jqrGfjJzW';
+					var fcm = new FCM(serverKey);
+
+					var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+						to: pushtoken,
+						//// collapse_key: 'your_collapse_key',
+						priority: 'high',
+						data: {
+							title: subject,
+							/// body: "<a href='http://58.26.233.115/IDAS/portal/read-notification.php?nid=" + lastid + "'>" + subject + "</a>"
+						}
+					};
+
+					fcm.send(message, function(err, response) {
+						if (err) {
+							console.log("Something has gone wrong------------------------------------------------------------------FCM------------------------------!" + pushtoken);
+						} else {
+							console.log("FCM-----------------------Successfully sent with response: " + pushtoken + '----------------', response);
+						}
+					});
+
+				}
+
+			} else {
+
+				data['push'] = 'No Registered For Push Notification';
+				console.log(data);
+			}
+
+		})
+		.error(function(err) {
+			//res.json(err);
+			data['push'] = err;
+		});
+
+
+	console.log(data);
+}
+
 
 ///////////////========================Get Glucose  Data=================================================/////////////////
 
@@ -707,7 +973,6 @@ exports.updateglucose = function(req, res) {
 
 ///=======================================Delete user glucose ===========================================/////////////////////
 exports.deleteglucose = function(req, res) {
-
 	var userid = req.body.userid;
 	var token = req.body.token;
 	var data1 = req.body.data;

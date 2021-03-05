@@ -6,6 +6,7 @@
 /*var _ = require('lodash');*/
 var db = require('../../config/sequelize');
 var nodemailer = require("nodemailer");
+var FCM = require('fcm-node');
 
 //============================================Add user temprature============================================/////////////////
 exports.addtemprature = function(req, res) {
@@ -29,7 +30,7 @@ exports.addtemprature = function(req, res) {
 					var firstName = response[0].firstName;
 					var lastName = response[0].lastName;
 
-					var sql = "INSERT INTO temperature (user , temperaturelevel, recordDateTime, temprature_celcius, temprature_foreignheight, unit, notes,deviceStatus) values ";
+					var sql = "INSERT INTO temperature (user , temperaturelevel, recordDateTime, temprature_celcius, temprature_foreignheight, unit, notes,deviceStatus, deviceuuid) values ";
 
 					for (var i = 0; i < total - 1; i++) {
 						var temperaturelevel = data1[i].temperaturelevel;
@@ -37,6 +38,7 @@ exports.addtemprature = function(req, res) {
 						var c_unit = data1[i].unit;
 						var notes = data1[i].notes;
 						var deviceStatus = data1[i].deviceStatus;
+                        var deviceuuid = data1[i].deviceuuid;
 
 						if (c_unit == 'c') {
 							var celcius = temperaturelevel;
@@ -45,9 +47,9 @@ exports.addtemprature = function(req, res) {
 							var foreinheight = temperaturelevel;
 							var celcius = (temperaturelevel - 32) * 5 / 9;
 						}
-						sql += "('" + email + "','" + temperaturelevel + "','" + recordDateTime + "','" + celcius + "','" + foreinheight + "','" + c_unit + "','" + notes + "','" + deviceStatus + "'),";
+						sql += "('" + email + "','" + temperaturelevel + "','" + recordDateTime + "','" + celcius + "','" + foreinheight + "','" + c_unit + "','" + notes + "','" + deviceStatus + "','" + deviceuuid + "'),";
                        
-                       temprature_alert(userid, email, firstName, lastName, temperaturelevel, recordDateTime);
+                       ////temprature_alert(userid, email, firstName, lastName, temperaturelevel, recordDateTime);
 
 						sql = sql.substr(0, sql.length);
 					}
@@ -57,6 +59,7 @@ exports.addtemprature = function(req, res) {
 					var c_unit = data1[total - 1].unit;
 					var notes = data1[total - 1].notes;
 					var deviceStatus = data1[total - 1].deviceStatus;
+                    var deviceuuid = data1[total - 1].deviceuuid;
 
 					if (c_unit == 'c') {
 						var celcius = temperaturelevel;
@@ -65,9 +68,9 @@ exports.addtemprature = function(req, res) {
 						var foreinheight = temperaturelevel;
 						var celcius = (temperaturelevel - 32) * 5 / 9;
 					}
-					sql += "('" + email + "','" + temperaturelevel + "','" + recordDateTime + "','" + celcius + "','" + foreinheight + "','" + c_unit + "','" + notes + "','" + deviceStatus + "')";
+					sql += "('" + email + "','" + temperaturelevel + "','" + recordDateTime + "','" + celcius + "','" + foreinheight + "','" + c_unit + "','" + notes + "','" + deviceStatus + "','" + deviceuuid + "')";
                     
-                    temprature_alert(userid, email, firstName, lastName, temperaturelevel, recordDateTime);
+                    ////temprature_alert(userid, email, firstName, lastName, temperaturelevel, recordDateTime);
 
 					db.temperature.addtemperature(sql).then(function(response) {
 						
@@ -123,6 +126,8 @@ function temprature_alert(userid, email, firstName, lastName, temperaturelevel, 
 
 			if (temperaturelevel < goalBodyTemperature_start || temperaturelevel > goalBodyTemperature_end) {
 				temprature_email_alert(email, firstName, lastName, temperaturelevel, recordDateTime,goalBodyTemperature_start, goalBodyTemperature_end );
+				/////Push notifications
+				sendAndroidNotification(email);
 
 				///get all next of kin
 				db.bp.getfamilyEmails(userid).then(function(response) {
@@ -131,6 +136,8 @@ function temprature_alert(userid, email, firstName, lastName, temperaturelevel, 
 					response.forEach(function(response, index) {
 						///Send Emails To Next Of Kin
 						temprature_email_alert(response.email, firstName, lastName, temperaturelevel, recordDateTime,goalBodyTemperature_start, goalBodyTemperature_end);
+						/////Push notifications
+						sendAndroidNotification(response.email);
 
 					});
 
@@ -146,6 +153,24 @@ function temprature_alert(userid, email, firstName, lastName, temperaturelevel, 
 
 			if (temperaturelevel < goalBodyTemperature_start || temperaturelevel > goalBodyTemperature_end) {
 				temprature_email_alert(email, firstName, lastName, temperaturelevel, recordDateTime,goalBodyTemperature_start, goalBodyTemperature_end );
+				/////Push notifications
+				sendAndroidNotification(email);
+
+				///get all next of kin
+				db.bp.getfamilyEmails(userid).then(function(response) {
+
+
+					response.forEach(function(response, index) {
+						///Send Emails To Next Of Kin
+						temprature_email_alert(response.email, firstName, lastName, temperaturelevel, recordDateTime,goalBodyTemperature_start, goalBodyTemperature_end);
+						/////Push notifications
+						sendAndroidNotification(response.email);
+
+					});
+
+				}).error(function(err) {
+					res.json(err);
+				});
 			}
 
 		}
@@ -157,10 +182,11 @@ function temprature_alert(userid, email, firstName, lastName, temperaturelevel, 
 
 }
 
-///////////////==========================Send Email ALerts for oxyge measurements============================/////////////
+///////////////==========================Send Email ALerts for Temprature measurements============================/////////////
 
 function temprature_email_alert(email, firstName, lastName, temperaturelevel, recordDateTime,goalBodyTemperature_start, goalBodyTemperature_end ) {
 
+add_notification_db_next_kin(email, firstName, lastName, temperaturelevel, recordDateTime,goalBodyTemperature_start, goalBodyTemperature_end);
 
 	var date_time = recordDateTime.split(' ');
 	var date = date_time[0].split('-');
@@ -173,7 +199,7 @@ function temprature_email_alert(email, firstName, lastName, temperaturelevel, re
 		service: "Gmail", // sets automatically host, port and connection security settings
 		auth: {
 			user: "chief.umch@gmail.com",
-			pass: "umch1328"
+			pass: "um1328ch"
 		}
 	});
 	smtpTransport.sendMail({ //email options
@@ -197,6 +223,96 @@ function temprature_email_alert(email, firstName, lastName, temperaturelevel, re
 
 
 }
+
+///////////////========================Add Notification to database for Next Of Kin===========================================================//////////////////////
+
+function add_notification_db_next_kin(email, firstName, lastName, temperaturelevel, recordDateTime,goalBodyTemperature_start, goalBodyTemperature_end) {
+
+	///8022=chief team userid
+	db.user.checkByname(email).then(function(response) {
+			var userids = response[0].userID;
+
+			var sub = "Health Alert : " + firstName + " " + lastName + " has abnormal Body Temperature at " + recordDateTime; 
+			var body = firstName + " " + lastName + " body temperature Readings are not in control:<br><b>Body Temperature </b> : " + temperaturelevel + " °C  <br><br>Recommended body temperature range: <br><b>Body Temperature (°C)</b> :  " + goalBodyTemperature_start + " - " + goalBodyTemperature_end + "<br>";
+			var sql = "INSERT INTO notification (`fromUserID`, `toUserID`, `subject`, `details`) VALUES ('8022', '" + userids + "', '" + sub + "', '" + body + "')";
+
+			db.bp.addbp(sql).then(function(response) {
+
+			}).error(function(err) {
+				//res.json(err);
+			});
+
+
+		})
+		.error(function(err) {
+			//res.json(err);
+			data['push'] = err;
+		});
+
+
+}
+
+///////////////========================Push Notification For Abnormal Blood Temprature=================================================/////////////////
+function sendAndroidNotification(email) {
+
+	var data = {
+		"error": 0,
+		"authResponse": "",
+		"push": ""
+	}
+
+
+	db.notificationDevices.getdevicebyuseremail(email).then(function(response) {
+			if (response != '' && response != null) {
+
+				data["error"] = 0;
+				data["authResponse"] = "Action Successful";
+				data['Data'] = response[0].deviceID;
+				var pushtoken = response[0].deviceID;
+
+				if (pushtoken != '' && pushtoken != null) {
+
+					var subject = response[0].firstName + ' ' + response[0].lastName + " has abnormal Body Temperature.";
+
+					var serverKey = 'AAAAz_fpkI4:APA91bFgvOvgp7Y4VxluMofV_UDSLVl_4a4kgP-cPCnAY1i7L_tckclMOtD67GjJWgIJ6lZ_42EWTAD20p-BjeGc_HrNSEj3stmUEcxoISF2NNbSwiboQywtwKnmmyhRh0_jqrGfjJzW';
+					var fcm = new FCM(serverKey);
+
+					var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+						to: pushtoken,
+						//// collapse_key: 'your_collapse_key',
+						priority: 'high',
+						data: {
+							title: subject,
+							/// body: "<a href='http://58.26.233.115/IDAS/portal/read-notification.php?nid=" + lastid + "'>" + subject + "</a>"
+						}
+					};
+
+					fcm.send(message, function(err, response) {
+						if (err) {
+							console.log("Something has gone wrong------------------------------------------------------------------FCM------------------------------!" + pushtoken);
+						} else {
+							console.log("FCM-----------------------Successfully sent with response: " + pushtoken + '----------------', response);
+						}
+					});
+
+				}
+
+			} else {
+
+				data['push'] = 'No Registered For Push Notification';
+				console.log(data);
+			}
+
+		})
+		.error(function(err) {
+			//res.json(err);
+			data['push'] = err;
+		});
+
+
+	console.log(data);
+}
+
 
 ///////////////========================Gettemprature Data=================================================/////////////////
 

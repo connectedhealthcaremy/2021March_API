@@ -30,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
 				},
 			   gettemperature: function (userid)
 			   {
-				   var sql = "SELECT id,user , temperaturelevel , recordDateTime , unit, temprature_celcius , temprature_foreignheight, notes from temperature WHERE user='"+userid+"' AND isdeleted='0'";
+				   var sql = "SELECT id,user , temperaturelevel , recordDateTime , unit, temprature_celcius , temprature_foreignheight, notes , deviceuuid from temperature WHERE user='"+userid+"' AND isdeleted='0'";
 				    return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 					
 				   },

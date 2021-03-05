@@ -32,7 +32,13 @@ module.exports = function(sequelize, DataTypes) {
 				return sequelize.query(sql, {
 					type: sequelize.QueryTypes.UPDATE
 				});
-			},
+            },
+            Selectmymedicinestatus: function (sql) {
+
+                return sequelize.query(sql, {
+                    type: sequelize.QueryTypes.SELECT
+                });
+            },
 			deletemymedicine: function(sql) {
 
 				return sequelize.query(sql, {

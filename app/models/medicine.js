@@ -12,8 +12,18 @@ module.exports = function(sequelize, DataTypes) {
 				   
 				    return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 					
-				   }
-				   	
+				   },
+                getmedicineStatus: function (userid) {
+                    userid = userid.replace("'", "");
+                    var sql = "SELECT * from mymedicinestatus WHERE userID=" + userid;
+                    sql = sql.replace("'", "");
+
+                    //console.log(sql1);
+                   // var sql2 = "SELECT myMedicineID,userID , status, dateTime,reason,timeTake from mymedicinestatus WHERE userID='" + userid + "'"; 
+
+                    console.log(sql);
+                    return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT });
+                }
 			}
 	}
 	);

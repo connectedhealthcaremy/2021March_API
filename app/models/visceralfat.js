@@ -11,6 +11,11 @@ module.exports = function(sequelize, DataTypes) {
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
 				
 				},
+				deletevisceralfat: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.DELETE});
+				
+				},
 			   getvisceralfat: function (userid)
 			   {
 				   var sql = "SELECT visceralFatID,scaleDate , visceralFatQty AS Qty from visceralfat WHERE userID='"+userid+"'";

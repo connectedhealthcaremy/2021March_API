@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
 				},
 			   getTempratureGoal: function (userid)
 			   {
-				   var sql = "SELECT id, userid, goalBodyTemperature_start, goalBodyTemperature_end from temperatureGoal WHERE  userid='"+userid+"' ORDER BY id DESC LIMIT 1";
+				   var sql = "SELECT * from temperatureGoal WHERE  userid='"+userid+"' ORDER BY id DESC LIMIT 1";
 				    return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 					
 				   },

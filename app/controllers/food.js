@@ -377,10 +377,105 @@ exports.addfoodtiming = function(req, res) {
 
 };
 
+///////////////========================Get Food Timing =================================================/////////////////
+
+exports.getFoodTiming = function(req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+    if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+
+                    db.foodhistory.getFoodTiming(userid).then(function(response) {
+                            data["error"] = 0;
+                            data["authResponse"] = "Action Successful";
+                            data['Data'] = response;
+                            res.json(data);
+
+                        })
+                        .error(function(err) {
+                            res.json(err);
+                        });
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            })
+            .error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+    return res;
+};
+
+
+///////////////========================Get Beverages =================================================/////////////////
+
+exports.getBeverages = function(req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token; 
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+    if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+
+                    db.food.getbeverages().then(function(response) {
+                            data["error"] = 0;
+                            data["authResponse"] = "Action Successful";
+                            data['Data'] = response;
+                            res.json(data);
+
+                        })
+                        .error(function(err) {
+                            res.json(err);
+                        });
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            })
+            .error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+    return res;
+};
+
 
 //================================================Add Food Notifications =================================//////////////////
 exports.addfoodnotifications = function(req, res) {
-
+console.log(req.body);
     var userid = req.body.userid;
     var token = req.body.token;
 
@@ -496,6 +591,52 @@ exports.addfoodnotifications = function(req, res) {
 
 };
 
+///////////////========================Get Food Notification =================================================/////////////////
+
+exports.getFoodNotification = function(req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+    if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+
+                    db.foodhistory.getFoodNotification(userid).then(function(response) {
+                            data["error"] = 0;
+                            data["authResponse"] = "Action Successful";
+                            data['Data'] = response;
+                            res.json(data);
+
+                        })
+                        .error(function(err) {
+                            res.json(err);
+                        });
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            })
+            .error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+    return res;
+};
 
 
 //================================================Add Food history days =================================//////////////////
@@ -618,6 +759,53 @@ exports.addfoodhistorydays = function(req, res) {
 
     return res;
 
+};
+
+///////////////========================Get Food History days =================================================/////////////////
+
+exports.getFoodhistorydays = function(req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+    if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+
+                    db.foodhistory.getFoodhistorydays(userid).then(function(response) {
+                            data["error"] = 0;
+                            data["authResponse"] = "Action Successful";
+                            data['Data'] = response;
+                            res.json(data);
+
+                        })
+                        .error(function(err) {
+                            res.json(err);
+                        });
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            })
+            .error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+    return res;
 };
 
 //================================================Add Food nutrient setting =================================//////////////////
@@ -780,7 +968,52 @@ exports.addfoodnutrientsettings = function(req, res) {
 
 };
 
+///////////////========================Get Food nutration settings =================================================/////////////////
 
+exports.getFoodNutirationSetting = function(req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+    if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+
+                    db.foodhistory.getFoodNutirationSetting(userid).then(function(response) {
+                            data["error"] = 0;
+                            data["authResponse"] = "Action Successful";
+                            data['Data'] = response;
+                            res.json(data);
+
+                        })
+                        .error(function(err) {
+                            res.json(err);
+                        });
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            })
+            .error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+    return res;
+};
 
 //============================================Add food ============================================/////////////////
 exports.addfood = function(req, res) {
@@ -905,6 +1138,54 @@ exports.foodnameSuggestion1 = function(req, res) {
                     var email = response;
 
                     db.food.getfoodnamesuggestion(name).then(function(response) {
+                            data["error"] = 0;
+                            data["authResponse"] = "Action Successful";
+                            data['Data'] = response;
+                            res.json(data);
+
+                        })
+                        .error(function(err) {
+                            res.json(err);
+                        });
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            })
+            .error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+    return res;
+}; 
+
+
+////////=====================Get Beverages suggestion===============================================/////////////////////
+exports.getbeveragenamesuggestion = function(req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+    var name = req.query.name;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+    if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+
+                    db.food.getbeveragenamesuggestion(name).then(function(response) {
                             data["error"] = 0;
                             data["authResponse"] = "Action Successful";
                             data['Data'] = response;
@@ -2507,4 +2788,148 @@ exports.getfoodhistory = function(req, res) {
     }
 
     return res;
+};
+//// Get All the photos of the user for approval 
+exports.getphotosofallusers = function(req, res) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+     if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+                    // retrieve all the photos of the user
+                         db.food.getAllPhotos().then(function(response) {
+                            data["error"] = 0;
+                            data["authResponse"] = "Action Successful";
+                            data['Data'] = response;
+                            res.json(data);
+
+                        })
+                        .error(function(err) {
+                            res.json(err);
+                        });
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            }).error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+
+
+
+    return res;
+};
+
+exports.updatephotostatus = function(req, res) {
+  var userid = req.body.userid;
+  var token = req.body.token;
+  
+  var data1 = req.body.data;
+  data1 = JSON.parse(data1);
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+       if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+                    // updates the photos of all the user 
+                    var id = data1[0].id;
+                    var isapprove = data1[0].approve;
+                    var updatesql = "update foodhistory set isapproved='"+isapprove+"' WHERE id='" + id + "'";
+		    console.log(updatesql);
+                    db.food.updatephotostatus(updatesql).then(function(response) {
+
+                        data["error"] = 0;
+                        data["authResponse"] = "Food History Approved";
+                       
+                        res.json(data);
+                    }).error(function(err) {
+                        res.json(err);
+                    });
+
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            }).error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    }
+ return res;
+};
+exports.updatefoodname = function(req, res) {
+  var userid = req.body.userid;
+  var token = req.body.token;
+  var data1 = req.body.data;
+  data1 = JSON.parse(data1);
+  var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+
+ if (!!token) {
+        ///Authinticate user
+        db.user.authUser(token).then(function(response) {
+                if (response != '' && response != null) {
+                    var email = response;
+                    // updates the photos of all the user 
+                    var id = data1[0].id;
+                    var englishname = data1[0].foodName;
+                    var updatesql = "update foodhistory set foodName='"+englishname+"' WHERE id='" + id + "'";
+		    console.log(updatesql);
+                    db.food.updatefoodname(updatesql).then(function(response) {
+
+                        data["error"] = 0;
+                        data["authResponse"] = "Food name updated successfully";
+                       
+                        res.json(data);
+                    }).error(function(err) {
+                        res.json(err);
+                    });
+
+
+                } else {
+                    data["error"] = 1;
+                    data["authResponse"] = "Authentication Failed.";
+                    res.json(data);
+
+                }
+            }).error(function(err) {
+                res.json(err);
+            });
+    } else {
+        data["error"] = 1;
+        data["authResponse"] = "Please provide all required data (i.e : token etc)";
+        res.json(data);
+        //connection.end()
+    } 
+ return res;
 };

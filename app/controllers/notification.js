@@ -42,7 +42,7 @@ exports.addnotification = function(req, res) {
 						 **notification to mobile devices
 						 ******************/
 
-						var resf = sendAndroidNotification(to, name, subject, lastid);
+						var resf = sendAndroidNotification(to, name, subject, details, lastid);
 
 
 						data["error"] = 0;
@@ -75,15 +75,286 @@ exports.addnotification = function(req, res) {
 	return res;
 };
 
-
 ///////////==============================Send Push Notification To device androids===================================///////////////////
 
 
 
 
 
+exports.GetPersonalizednotification = function (req, res) {
 
-function sendAndroidNotification(userid, name, subject, lastid) {
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": "",
+        "pushresponse": ""
+    }
+
+    db.user.authUser(token).then(function (response) {
+        if (!!token) {
+            if (response != '' && response != null) {
+
+                var sql = "select * from WeHealthDB.PersonalizedNotifications where  userid=" + userid + "";
+
+                db.notification.getPersonalizedNotification(sql).then(function (response) {
+
+                    data["error"] = 0;
+                    data["authResponse"] = "Personalized notification Successfully";
+                    data["pushresponse"] = response;
+                    res.json(data);
+
+                }).error(function (err) {
+                    res.json(err);
+                });
+
+
+            } else {
+                data["error"] = 1;
+                data["authResponse"] = "Authentication Failed.";
+                res.json(data);
+            }
+        } else {
+            data["error"] = 1;
+            data["authResponse"] = "Token Required etc.";
+            res.json(data);
+        }
+    })
+        .error(function (err) {
+            res.json(err);
+        });
+    return res;
+};
+exports.addPersonalizedNotificationStatus = function (req, res) {
+
+    var userid = req.body.userid;
+    var token = req.body.token;
+    var data1 = req.body.data;
+
+
+    data1 = JSON.parse(data1);
+    var total = data1.length;
+    console.log(data1);
+
+
+    var data = {
+        "error": 0,
+        "authResponse": "",
+        "pushresponse": ""
+    }
+
+    db.user.authUser(token).then(function (response) {
+        if (!!token) {
+            if (response != '' && response != null) {
+                var userid = data1[0].userid;
+                var enable = data1[0].enable;
+                var notificationType = data1[0].notificationtype;
+                 var updatequery = "update PersonalizedNotificationStatus set userid='"+userid+"',notificationtype='"+notificationType+"',enable='"+enable+"' where notificationtype='"+notificationType+"'  and  userid='" + userid + "'"
+                 var sql = "INSERT INTO PersonalizedNotificationStatus (`userid`, `notificationtype`, `enable`) values ";
+                sql += "('" + userid + "','" + notificationType + "','" + enable + "')";
+                  
+                var selectQuery = "select * from PersonalizedNotificationStatus where notificationtype='"+notificationType+"'  and  userid='" + userid + "'";
+
+                  db.notification.getPersonalizedNotificationStatus(selectQuery).then(function (response) {
+                          if (response != '' && response != null) {
+                           db.notification.Updatenotification(updatequery).then(function (response) {
+                                    var lastid = response;
+                                    data["error"] = 0;
+                                    data["authResponse"] = "Personalized Notification Updated Successfully";
+                                    res.json(data);
+
+                                }).error(function (err) {
+                                    res.json(err);
+                                });
+
+                       } else {
+
+
+                            db.notification.addnotification(sql).then(function (response) {
+
+				    var lastid = response;
+				    data["error"] = 0;
+				    data["authResponse"] = "Personalized Notification status added Successfully";
+				    data["pushresponse"] = lastid;
+				    res.json(data);
+
+			    }).error(function (err) {
+				    res.json(err);
+			    });
+                       }
+                    
+
+                }).error(function (err) {
+                    res.json(err);
+                });
+                
+                
+                
+            } else {
+                data["error"] = 1;
+                data["authResponse"] = "Authentication Failed.";
+                res.json(data);
+            }
+        } else {
+            data["error"] = 1;
+            data["authResponse"] = "Token Required etc.";
+            res.json(data);
+        }
+    })
+        .error(function (err) {
+            res.json(err);
+        });
+
+
+
+    return res;
+};
+//Personalized Notification
+exports.insertPersonalizednotification = function (req, res) {
+
+    var userid = req.body.userid;
+    var token = req.body.token;
+    var data1 = req.body.data;
+
+
+    data1 = JSON.parse(data1);
+    var total = data1.length;
+    console.log(data1);
+
+
+    var data = {
+        "error": 0,
+        "authResponse": "",
+        "pushresponse": ""
+    }
+
+    db.user.authUser(token).then(function (response) {
+        if (!!token) {
+            if (response != '' && response != null) {
+
+                var userid = data1[0].userid;
+                var notificationType = data1[0].notificationType;
+                var message = data1[0].message;
+                var serverid = data1[0].serverid;
+                var datetime = data1[0].datetime;
+                var repeatinterval = data1[0].repeatinterval;
+                var enable  = data1[0].enable;
+
+                var updatequery = "update PersonalizedNotifications set userid='"+userid+"',notificationType='"+notificationType+"',message='"+message+"',serverid='"+serverid+"', repeatinterval='"+repeatinterval+"', enable='"+enable+"' where datetime='"+datetime+"'  and  userid='" + userid + "' and notificationType='"+notificationType+"'";
+                var sql = "INSERT INTO PersonalizedNotifications (`userid`, `notificationType`, `message`, `serverid`, `datetime`, `repeatinterval`, `enable`) values ";
+                sql += "('" + userid + "','" + notificationType + "','" + message + "','" + serverid + "','" + datetime + "','" + repeatinterval + "','"+enable+"')";
+
+                var selectQuery = "select * from PersonalizedNotifications where datetime='"+datetime+"'  and  userid='" + userid + "' and notificationType='"+notificationType+"'";
+
+                db.notification.getPersonalizedNotification(selectQuery).then(function (response) {
+
+                       if (response != '' && response != null) {
+                           db.notification.Updatenotification(updatequery).then(function (response) {
+                                    var lastid = response;
+                                    data["error"] = 0;
+                                    data["authResponse"] = "Personalized Notification Updated Successfully";
+                                    res.json(data);
+
+                                }).error(function (err) {
+                                    res.json(err);
+                                });
+
+                       } else {
+
+
+                            db.notification.addnotification(sql).then(function (response) {
+
+				    var lastid = response;
+				    data["error"] = 0;
+				    data["authResponse"] = "Personalized Notification added Successfully";
+				    data["pushresponse"] = lastid;
+				    res.json(data);
+
+			    }).error(function (err) {
+				    res.json(err);
+			    });
+                       }
+                   
+
+                }).error(function (err) {
+                    res.json(err);
+                });
+                
+               
+
+
+            } else {
+                data["error"] = 1;
+                data["authResponse"] = "Authentication Failed.";
+                res.json(data);
+            }
+        } else {
+            data["error"] = 1;
+            data["authResponse"] = "Token Required etc.";
+            res.json(data);
+        }
+    })
+        .error(function (err) {
+            res.json(err);
+        });
+
+
+
+    return res;
+};
+//PErsonalized Notification
+exports.getPersonalizedNotificationStatus = function (req, res) {
+
+    var userid = req.query.userid;
+    var token = req.query.token;
+
+    var data = {
+        "error": 0,
+        "authResponse": "",
+        "pushresponse": ""
+    }
+
+    db.user.authUser(token).then(function (response) {
+        if (!!token) {
+            if (response != '' && response != null) {
+
+                var sql = "select * from WeHealthDB.PersonalizedNotificationStatus where  userid=" + userid + "";
+
+                db.notification.getPersonalizedNotificationStatus(sql).then(function (response) {
+
+                    data["error"] = 0;
+                    data["authResponse"] = "Personalized notification status retrieved Successfully";
+                    data["pushresponse"] = response;
+                    res.json(data);
+
+                }).error(function (err) {
+                    res.json(err);
+                });
+
+
+            } else {
+                data["error"] = 1;
+
+                data["authResponse"] = "Authentication Failed.";
+                res.json(data);
+            }
+        } else {
+            data["error"] = 1;
+            data["authResponse"] = "Token Required etc.";
+            res.json(data);
+        }
+    })
+        .error(function (err) {
+            res.json(err);
+        });
+    return res;
+};
+
+
+
+
+function sendAndroidNotification(userid, name, subject, details, lastid) {
 
 	var data = {
 		"error": 0,
@@ -92,70 +363,68 @@ function sendAndroidNotification(userid, name, subject, lastid) {
 	}
 
 	db.notificationDevices.getdevicebyuser(userid).then(function(response) {
-			if (response != '' && response != null) {
+		if (response != '' && response != null) {
+      		data["error"] = 0;
+			data["authResponse"] = "Action Successful";
+			data['Data'] = response[0].deviceID;
 
-			/*var pushtoken = response[0].deviceID;
-
-
-				var SERVER_API_KEY='AAAANqHPTPA:APA91bEZgGvMJOjinwWqHNpdcfzaZFEf97CDRtK9-CkvuKU4-5wHb7uFkKxn5u9VNdEkm6-xpYjWpHz5P9U2MtRMDvpJ3f_ntMbzcJmszV9U1HJP26RXLvN--ZMokc82j6aV-PDnKshQdNMvq9_LzNTKb0i8j8P_jA';//put your api key here
-
-				var validDeviceRegistrationToken = pushtoken; //put a valid device token here
-
-				var fcmCli= new FCM(SERVER_API_KEY);
-
-				var payloadOK = {
-				to: validDeviceRegistrationToken,
-				data: { //some data object (optional)
-				url: "<a href='http://58.26.233.115/IDAS/portal/read-notification.php?nid=" + lastid + "'>" + subject + "</a>",
-				//foo:'test',
-				//bar:'check'
-				},
-				priority: 'high',
-				content_available: true,
-				notification: { //notification object
-				title: name , body: "<a href='http://58.26.233.115/IDAS/portal/read-notification.php?nid=" + lastid + "'>" + subject + "</a>"
+			const pushtoken = response[0].deviceID;
+			const API_ACCESS_KEY = 'AAAAU1x0kR8:APA91bGOPDzYS6-oopqvbZLBaswp8DL9pp7omDSmOgF8gqYkFbnruETU5n2xgS6U9L8Gut37DZ3O4GvSGbbqcbfwYOGjFqrBBno3wKIeUshaAlELVu_tYKNEAgYQVPYvdmpnGzYce6ix';
+			const token = pushtoken; //"fZPKpoH1OEg:APA91bGeqDMcTjuAQPZ7goDTHBodvpwjNxOMvC--bQegMHmUVxY_NN4UI3GtGgUrMi761irAx7cMHK_lsHnk6uPGGAjJP4bjsOCbf1Olpr_LwF7yNFjI6TzDQwp5ftHt4QQZdTrFpkyk";
+			
+			const notification = {
+				title : subject, //'WeHealth Notification',
+				body : details, //'From Web NodeJS Code',
+				icon :'myIcon', 
+				sound : 'mySound'
+			};
+			
+			const extraNotificationData = {
+				message : notification, 
+				moredata : 'dd'
+			};
+			
+			const post_data = JSON.stringify({
+				to : token, 
+				notification : notification,
+				data : extraNotificationData
+			});
+			
+			
+			const options = {
+				hostname: 'fcm.googleapis.com',
+				path: '/fcm/send',
+				method: 'POST',
+				headers: {
+					Authorization : 'key=' + API_ACCESS_KEY,
+					'Content-Type': 'application/json',
+					'Content-Length': post_data.length
 				}
-				};
-
-
-				//var callbackLog = function (sender, err, res) {
-				console.log("\n__________________________________")
-				console.log("\t"+"Send OK");
-				console.log("----------------------------------")
-				//console.log("err="+err);
-				//console.log("res="+res);
-				console.log("----------------------------------\n>>>");
-				//};
-*/
-      data["error"] = 0;
-				data["authResponse"] = "Action Successful";
-				data['Data'] = response[0].deviceID;
-				var pushtoken = response[0].deviceID;
-
-var serverKey = 'AAAANqHPTPA:APA91bEZgGvMJOjinwWqHNpdcfzaZFEf97CDRtK9-CkvuKU4-5wHb7uFkKxn5u9VNdEkm6-xpYjWpHz5P9U2MtRMDvpJ3f_ntMbzcJmszV9U1HJP26RXLvN--ZMokc82j6aV-PDnKshQdNMvq9_LzNTKb0i8j8P_jA';
-var fcm = new FCM(serverKey);
-
-var message = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-    to: pushtoken,
-   //// collapse_key: 'your_collapse_key',
-    priority: 'high',
-    data: {
-        title: subject,
-       /// body: "<a href='http://58.26.233.115/IDAS/portal/read-notification.php?nid=" + lastid + "'>" + subject + "</a>"
-    }
-};
-
-fcm.send(message, function(err, response){
-    if (err) {
-        console.log("Something has gone wrong------------------------------------------------------------------FCM------------------------------!"+pushtoken);
-    } else {
-        console.log("FCM-----------------------Successfully sent with response: "+pushtoken+'----------------', response);
-    }
-});
-
-
-
-
+			};
+			
+			//Make post request : Push Notification
+			const https = require('https'); //native library
+			
+			const req = https.request(options, (res) => {
+				let data = '';
+			
+				console.log('Status Code:', res.statusCode);
+			
+				res.on('data', (chunk) => {
+					data += chunk;
+				});
+			
+				res.on('end', () => {
+					console.log('Body: ', JSON.parse(data));
+				});
+			
+			}).on("error", (err) => {
+				console.log("Error: ", err.message);
+			});
+			
+			req.write(post_data);
+			req.end();
+			
 			} else {
 
 				data['push'] = 'No Registered For Push Notification';
@@ -172,7 +441,6 @@ fcm.send(message, function(err, response){
 	return data;
 }
 
-
 ///////////////========================Get notification inbox=================================================/////////////////
 
 exports.getnotificationinbox = function(req, res) {
@@ -188,6 +456,50 @@ exports.getnotificationinbox = function(req, res) {
 		db.user.authUser(token).then(function(response) {
 				if (response != '' && response != null) {
 					db.notification.getNotificationinbox(userid).then(function(response) {
+							data["error"] = 0;
+							data["authResponse"] = "Action Successful";
+							data['Data'] = response;
+							res.json(data);
+
+						})
+						.error(function(err) {
+							res.json(err);
+						});
+
+				} else {
+					data["error"] = 1;
+					data["authResponse"] = "Authentication Failed.";
+					res.json(data);
+
+				}
+			})
+			.error(function(err) {
+				res.json(err);
+			});
+	} else {
+		data["error"] = 1;
+		data["authResponse"] = "Please provide all required data (i.e : token etc)";
+		res.json(data);
+		//connection.end()
+	}
+
+	return res;
+};
+
+
+exports.getnotificationinboxApp = function(req, res) {
+	var userid = req.query.userid;
+	var token = req.query.token;
+
+	var data = {
+		"error": 0,
+		"authResponse": ""
+	}
+	if (!!token) {
+		///Authinticate user
+		db.user.authUser(token).then(function(response) {
+				if (response != '' && response != null) {
+					db.notification.getNotificationinboxApp(userid).then(function(response) {
 							data["error"] = 0;
 							data["authResponse"] = "Action Successful";
 							data['Data'] = response;
@@ -362,7 +674,7 @@ exports.getnotificationsent = function(req, res) {
 
 exports.getNotificationinboxdetail = function(req, res) {
 
-	var userid = req.query.nid;
+	var nid = req.query.nid;
 	var token = req.query.token;
 
 	var data = {
@@ -373,11 +685,11 @@ exports.getNotificationinboxdetail = function(req, res) {
 		///Authinticate user
 		db.user.authUser(token).then(function(response) {
 				if (response != '' && response != null) {
-					var sql = "update notification set status='1' where  id=" + userid + "";
+					var sql = "update notification set status='1' where  id=" + nid + "";
 
 					db.notification.Updatenotification(sql).then(function(response) {
 
-						db.notification.getNotificationinboxdetail(userid).then(function(response) {
+						db.notification.getNotificationinboxdetail(nid).then(function(response) {
 								data["error"] = 0;
 								data["authResponse"] = "Action Successful";
 								data['Data'] = response;
@@ -413,6 +725,249 @@ exports.getNotificationinboxdetail = function(req, res) {
 	return res;
 };
 
+///////////////========================Get notification Sent Details=================================================/////////////////
+// cy added 15May2020
+exports.getNotificationsentdetail = function(req, res) {
+
+	var nid = req.query.nid;
+	var token = req.query.token;
+
+	var data = {
+		"error": 0,
+		"authResponse": ""
+	}
+	
+	if (!!token) {
+		///Authinticate user
+		db.user.authUser(token).then(function(response) {
+			if (response != '' && response != null) {
+				//var sql = "update notification set status='1' where  id=" + nid + "";
+
+				//db.notification.Updatenotification(sql).then(function(response) {
+
+				db.notification.getNotificationinboxdetail(nid).then(function(response) {
+					data["error"] = 0;
+					data["authResponse"] = "Action Successful";
+					data['Data'] = response;
+					res.json(data);
+
+				}).error(function(err) {
+					res.json(err);
+				});
+
+				/*}).error(function(err) {
+					res.json(err);
+				});*/
+			} else {
+				data["error"] = 1;
+				data["authResponse"] = "Authentication Failed.";
+				res.json(data);
+			}
+		}).error(function(err) {
+			res.json(err);
+		});
+	} else {
+		data["error"] = 1;
+		data["authResponse"] = "Please provide all required data (i.e : token etc)";
+		res.json(data);
+		//connection.end()
+	}
+	return res;
+};
+
+/////////////===========================Update delete notification status ================================////////////////
+exports.deletenotifications = function(req, res) {
+
+	var userid = req.body.userid;
+	var token = req.body.token;
+    var notification_id = req.body.notification_id;
+
+	var data = {
+		"error": 0,
+		"authResponse": ""
+	}
+	if (!!token) {
+		///Authinticate user
+		db.user.authUser(token).then(function(response) {
+				if (response != '' && response != null) {
+
+					var sql = "update notification set isdeleted='1' where  id=" + notification_id + "";
+					db.notification.Updatenotification(sql).then(function(response) {
+
+							data["error"] = 0;
+							data["authResponse"] = "Action Successful";
+							res.json(data);
+
+						})
+						.error(function(err) {
+							res.json(err);
+						});
+
+				} else {
+					data["error"] = 1;
+					data["authResponse"] = "Authentication Failed.";
+					res.json(data);
+
+				}
+			})
+			.error(function(err) {
+				res.json(err);
+			});
+	} else {
+		data["error"] = 1;
+		data["authResponse"] = "Please provide all required data (i.e : token etc)";
+		res.json(data);
+		//connection.end()
+	}
+
+	return res;
+};
+
+
+
+/////////////===========================Update Is important notification status ================================////////////////
+exports.isImportantNotifications = function(req, res) {
+
+	var userid = req.body.userid;
+	var token = req.body.token;
+    var notification_id = req.body.notification_id;
+
+	var data = {
+		"error": 0,
+		"authResponse": ""
+	}
+	if (!!token) {
+		///Authinticate user
+		db.user.authUser(token).then(function(response) {
+				if (response != '' && response != null) {
+
+					var sql = "update notification set is_important='1' where  id=" + notification_id + "";
+					db.notification.Updatenotification(sql).then(function(response) {
+
+							data["error"] = 0;
+							data["authResponse"] = "Action Successful";
+							res.json(data);
+
+						})
+						.error(function(err) {
+							res.json(err);
+						});
+
+				} else {
+					data["error"] = 1;
+					data["authResponse"] = "Authentication Failed.";
+					res.json(data);
+
+				}
+			})
+			.error(function(err) {
+				res.json(err);
+			});
+	} else {
+		data["error"] = 1;
+		data["authResponse"] = "Please provide all required data (i.e : token etc)";
+		res.json(data);
+		//connection.end()
+	}
+
+	return res;
+};
+
+
+/////////////===========================Update Is Not important notification status ================================////////////////
+exports.isNotImportantNotifications = function(req, res) {
+
+	var userid = req.body.userid;
+	var token = req.body.token;
+    var notification_id = req.body.notification_id;
+
+	var data = {
+		"error": 0,
+		"authResponse": ""
+	}
+	if (!!token) {
+		///Authinticate user
+		db.user.authUser(token).then(function(response) {
+				if (response != '' && response != null) {
+
+					var sql = "update notification set is_important='0' where  id=" + notification_id + "";
+					db.notification.Updatenotification(sql).then(function(response) {
+
+							data["error"] = 0;
+							data["authResponse"] = "Action Successful";
+							res.json(data);
+
+						})
+						.error(function(err) {
+							res.json(err);
+						});
+
+				} else {
+					data["error"] = 1;
+					data["authResponse"] = "Authentication Failed.";
+					res.json(data);
+
+				}
+			})
+			.error(function(err) {
+				res.json(err);
+			});
+	} else {
+		data["error"] = 1;
+		data["authResponse"] = "Please provide all required data (i.e : token etc)";
+		res.json(data);
+		//connection.end()
+	}
+	return res;
+};
+
+/////////////===========================Update notification status ================================////////////////
+exports.readnotifications = function(req, res) {
+
+	var userid = req.body.userid;
+	var token = req.body.token;
+    var notification_id = req.body.notification_id;
+
+	var data = {
+		"error": 0,
+		"authResponse": ""
+	}
+	if (!!token) {
+		///Authinticate user
+		db.user.authUser(token).then(function(response) {
+				if (response != '' && response != null) {
+
+					var sql = "update notification set status='1' where  id=" + notification_id + "";
+					db.notification.Updatenotification(sql).then(function(response) {
+
+							data["error"] = 0;
+							data["authResponse"] = "Action Successful";
+							res.json(data);
+
+						})
+						.error(function(err) {
+							res.json(err);
+						});
+
+				} else {
+					data["error"] = 1;
+					data["authResponse"] = "Authentication Failed.";
+					res.json(data);
+
+				}
+			})
+			.error(function(err) {
+				res.json(err);
+			});
+	} else {
+		data["error"] = 1;
+		data["authResponse"] = "Please provide all required data (i.e : token etc)";
+		res.json(data);
+		//connection.end()
+	}
+
+	return res;
+};
 
 ////////////////========================Read All Notifications inbox =================================================/////////////////
 exports.readallnotificationsInbox = function(req, res) {

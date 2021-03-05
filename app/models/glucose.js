@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
 				},
                  checkgoal: function(id)
                  {
-                 	var sql="SELECT * FROM umch.glucose_goal WHERE userID='"+id+"' order by id DESC";
+                 	var sql="SELECT * FROM WeHealthDB.glucose_goal WHERE userID='"+id+"' order by id DESC";
                  	return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
                  }
 				,

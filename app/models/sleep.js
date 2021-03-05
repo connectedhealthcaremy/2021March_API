@@ -6,9 +6,53 @@ module.exports = function(sequelize, DataTypes) {
 	{},
 	{
 			classMethods: {
+				check_newRecord : (userID, uuID, startTime) => { // ,startTime
+					var sql  = "SELECT * FROM sleep WHERE userID ='"+userID+"' and uuID ='"+uuID+"'and startTime ='"+startTime+"' limit 1;";
+					return 	sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
+				}, 
+				getLatestRecord: (userid,uuid) => {
+					var sql="SELECT max(startTime) as maxTime from sleep WHERE userID='"+userid+"' and uuid ='"+uuid+"'; ";
+					return sequelize.query(sql, { type: sequelize.QueryTypes.SELECT});
+				},
+				setIsDeleted: (userID,uuID,startTime) => {
+					var sql="UPDATE sleep SET isdeleted='1' WHERE userID='"+userID+"' and uuID= '"+uuID+"' and startTime ='"+startTime+"';";
+					return sequelize.query(sql,{ type: sequelize.QueryTypes.UPDATE});
+				},
 				addSleep: function (sql) { 
 				
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
+				
+				},
+				addSleepSetting: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
+				
+				},
+				updateSleepSetting: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.UPDATE});
+				
+				},
+				getSleepSetting: function (userid) { 
+				 
+				var sql="SELECT * FROM WeHealthDB.sleepSetting where userid="+userid+""; 
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
+				
+				},
+				addWeekendSleepSettings: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
+				
+				},
+				updateWeekendSleepSettings: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.UPDATE});
+				
+				},
+				getWeekendSleepSettings: function (userid) { 
+				 
+				var sql="SELECT * FROM WeHealthDB.weekendsleepsettings where userid="+userid+""; 
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 				
 				},
 				updateDuplicateData: function(userid,startDate,deviceid)
@@ -33,14 +77,15 @@ module.exports = function(sequelize, DataTypes) {
 				var sql = "SELECT sleepID FROM sleep WHERE userID='"+userid+"' and startTime >= '"+startTime+"' and endTime <= '"+endTime+"'";
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 				},
-				getSleeps: function(userid) 
+				getSleeps: function(userid, startDate, endDate) 
 				{  
-				var sql = "SELECT startTime AS start , endTime AS end from sleep WHERE userID='"+userid+"'";
+				var sql = "SELECT startTime AS start , endTime AS end, sleepID, uuID , sleepstate , deviceid from sleep WHERE userID='"+userid+"' and isdeleted=0 and date(startTime) BETWEEN date('"+startDate+"') AND date('"+endDate+"')";
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 				},
-				getSleepSteps: function(userid) 
+				getSleepSteps: function(userid, startDate, endDate) 
 				{  
-				var sql = "SELECT stepTime AS Date , stepQty AS Qty from sleepstep WHERE userID='"+userid+"'";
+				///var sql = "SELECT stepTime AS Date , stepQty AS Qty, sleepID from sleepstep WHERE userID='"+userid+"' and YEAR(stepTime) = YEAR(CURDATE())";
+				var sql="SELECT stepTime AS Date , stepQty AS Qty, sleepID from sleepstep WHERE userID='"+userid+"' and date(stepTime) BETWEEN date('"+startDate+"') AND date('"+endDate+"')";
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 				},
 				getSleepForTrainer: function(userid) 

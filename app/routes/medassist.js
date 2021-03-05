@@ -17,7 +17,9 @@
  	var medassist = require('../../app/controllers/medassist');
  	app.get('/GetDoctors', medassist.getdoctors);
  	app.get('/GetPharmacist', medassist.getpharmacist);
- 	app.get('/GetMedicine', medassist.getmedicine);
+     app.get('/GetMedicine', medassist.getmedicine);
+
+     app.get('/GetMedicineStatus', medassist.getmedicineStatus);
 
  	/////////=================Add User Medicine================////////
 

@@ -78,6 +78,76 @@ exports.adddevice = function(req, res) {
       return res;
 };
 
+
+
+
+
+//========================================Delete Device ==============================
+
+exports.Deletedevice = function (req, res) {
+    var userid = req.body.userid;
+    var token = req.body.token;
+    var deviceID = req.body.deviceID;
+
+    var data = {
+        "error": 0,
+        "authResponse": ""
+    }
+
+
+
+    db.user.authUser(token).then(function (response) {
+        if (!!token && !!deviceID) {
+            if (response != '' && response != null) {
+
+                var email = response;
+
+                var sql = "Delete from notificationDevices where deviceID='"+ deviceID + "' and userID='" + userid + "' ";
+
+                /*for(var i=0; i< total-1 ; i++)
+                {
+                var deviceID=data1[i]["deviceID"].toString();
+                sql += "('" + deviceID + "','" + userid + "'),";
+            	
+                sql = sql.substr(0,sql.length);
+                }
+                var deviceID=data1[i]["deviceID"].toString();*/
+                sql += "('" + deviceID + "','" + userid + "')";
+
+
+                db.notificationDevices.adddevice(sql).then(function (response) {
+
+                    data["error"] = 0;
+                    data["authResponse"] = "Notification Device Deleted Successfully";
+                    res.json(data);
+
+                }).error(function (err) {
+                    res.json(err);
+                });
+
+
+            }
+            else {
+                data["error"] = 1;
+                data["authResponse"] = "Authentication Failed.";
+                res.json(data);
+            }
+        }
+        else {
+            data["error"] = 1;
+            data["authResponse"] = "Token Required etc.";
+            res.json(data);
+        }
+    })
+        .error(function (err) {
+            res.json(err);
+        });
+
+
+
+    return res;
+};
+
 ///////////////========================GetDEvice=================================================/////////////////
 
 exports.getdevice = function(req, res) {

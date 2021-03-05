@@ -27,13 +27,15 @@ var app = express();
 
 // Create a server
 var server = http.createServer(app);
-
+//http.createServer(app).listen(80);
 //Initialize Express
 require('./config/express')(app, passport);
 
 //Start the app by listening on <port>
 //app.listen(config.PORT);
-
+//app.listen(80, () => {
+ // console.log('HTTP server running on port 80');
+//});
 
 
 winston.info('Express app started on port ' + config.PORT);

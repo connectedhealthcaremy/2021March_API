@@ -17,15 +17,19 @@
  	////========================Food Timing==========================//////////
 
  	app.post('/AddFoodTiming', food.addfoodtiming);
+ 	app.get('/getFoodTiming', food.getFoodTiming);
 
  	////=========================Food Notification for mobile==========/////////
  	app.post('/addfoodnotifications', food.addfoodnotifications);
+ 	app.get('/getFoodNotification', food.getFoodNotification);
 
  	/////========================Food history days ====================////////
  	app.post('/addfoodhistorydays', food.addfoodhistorydays);
+ 	app.get('/getFoodhistorydays', food.getFoodhistorydays);
 
  	//////======================Food Nutrient Settings=================////////
  	app.post('/addfoodnutrientsettings', food.addfoodnutrientsettings);
+ 	app.get('/getFoodNutirationSetting', food.getFoodNutirationSetting);
 
  	////========================Food =================================//////////
 
@@ -37,6 +41,7 @@
  	app.get('/foodWithmg', food.foodWithMG);
  	app.get('/foodWithml', food.foodWithml);
  	app.get('/foodnameSuggestion', food.foodnameSuggestion1);
+ 	app.get('/getbeveragenamesuggestion', food.getbeveragenamesuggestion);
 
  	////========================add fat and colestrol==========================//////////
  	app.post('/insertfattyandcholestrol', food.insertfattyandcholestrol);
@@ -62,6 +67,7 @@
  	app.post('/insertwaterandmineralcontent', food.insertwaterandmineralcontent);
  	app.get('/retrieveallwaterandmineralcontent', food.retrieveallwaterandmineralcontent);
  	app.get('/retrievewaterandmineralcontent', food.retrievewaterandmineralcontent);
+ 	app.get('/getBeverages', food.getBeverages);
 
 
  	////========================Fatty Acids==========================//////////
@@ -69,6 +75,8 @@
  	app.get('/retrieveallfattyacids', food.retrieveallfattyacids);
  	app.get('/retrievefattyacids', food.retrievefattyacids);
 
-
+        app.get('/getphotosofallusers', food.getphotosofallusers);
+        app.post('/updatephotostatus', food.updatephotostatus);
+        app.post('/updatefoodname', food.updatefoodname);
 
  };

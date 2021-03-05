@@ -28,6 +28,11 @@ module.exports = function(sequelize, DataTypes) {
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.UPDATE});
 				
 				},
+				delete_body_density: function (sql) { 
+				
+                     return sequelize.query(sql,{ type: sequelize.QueryTypes.DELETE});
+				
+				},
 			   getbodydensity: function (userid)
 			   {
 				   var sql = "SELECT id as bodydensityid,userID , bodydensity as bodydensity, recordDateTime as insertiontime ,site1 , site2, site3 , deviceStatus as deviceTypeID, notes FROM bodydensity WHERE userID='"+userid+"' AND isdeleted=0 ";

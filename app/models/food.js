@@ -79,6 +79,38 @@ module.exports = function(sequelize, DataTypes) {
 					type: sequelize.QueryTypes.DELETE
 				});
 
+			},
+			getFoodTiming: function(userid) {
+
+				var sql="select * from food_timing where userID='"+userid+"'";
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.SELECT
+				});
+
+			},
+			getFoodNotification: function(userid) {
+
+				var sql="select * from food_notification where userid='"+userid+"'";
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.SELECT
+				});
+
+			},
+			getFoodhistorydays: function(userid) {
+
+				var sql="select * from food_history_days where userid='"+userid+"'";
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.SELECT
+				});
+
+			},
+			getFoodNutirationSetting: function(userid) {
+
+				var sql="select * from food_Nutrient_Settings where userid='"+userid+"'";
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.SELECT
+				});
+
 			}
 		}
 	});

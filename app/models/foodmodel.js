@@ -20,7 +20,15 @@ module.exports = function(sequelize, DataTypes) {
 
 			},
 			getfoodnamesuggestion: function(name) {
-				var sql = "select foodid , englishname from food where englishname like '%" + name + "%' group by englishname ";
+				var sql = "select foodid , englishname, country from food where englishname like '%" + name + "%' group by englishname ";
+
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.SELECT
+				});
+
+			},
+			getbeveragenamesuggestion: function(name) {
+				var sql = "select foodid , englishname,country from food where greenbookcategory like '%Beverages%' and englishname like '%" + name + "%' group by englishname ";
 
 				return sequelize.query(sql, {
 					type: sequelize.QueryTypes.SELECT
@@ -47,10 +55,10 @@ module.exports = function(sequelize, DataTypes) {
 			getspecificfoodwithcomposition: function(food) {
 
 				if (food == 'other') {
-					var sql = "select food.foodid , food.englishname, food.servingsize, food.measurement, food.healthScore_category,    food.scientificname,food.foodgroup ,food.ediblePortion ,food.weight ,foodproximatecomposition.energy, foodproximatecomposition.suger ,foodproximatecomposition.water  ,foodproximatecomposition.protein ,foodproximatecomposition.fat ,foodproximatecomposition.cho  ,foodproximatecomposition.fiber ,foodproximatecomposition.ash from food INNER JOIN foodproximatecomposition ON food.foodid=foodproximatecomposition.foodid WHERE food.englishname NOT LIKE '%Bread%' AND food.englishname NOT LIKE '%Burger%' AND food.englishname NOT LIKE '%Cheese%' AND food.englishname NOT LIKE '%Chicken%' AND food.englishname NOT LIKE '%Chocolate%' AND food.englishname NOT LIKE '%Egg%' AND food.englishname NOT LIKE '%Fish%' AND food.englishname NOT LIKE '%Fruit%' AND food.englishname NOT LIKE '%Rice%' AND food.englishname NOT LIKE '%IceCream%' AND food.englishname NOT LIKE '%Meat%' AND food.englishname NOT LIKE '%Noodle%' AND food.englishname NOT LIKE '%Pizza%' AND food.englishname NOT LIKE '%Snake%' AND food.englishname NOT LIKE '%Soup%' AND food.englishname NOT LIKE '%Sweet%' AND food.englishname NOT LIKE '%vegetable%' AND food.englishname NOT LIKE '%Rice%'"
+					var sql = "select food.foodid , food.englishname,food.country, food.servingsize, food.measurement, food.healthScore_category,    food.scientificname,food.foodgroup ,food.ediblePortion ,food.weight ,foodproximatecomposition.energy, foodproximatecomposition.suger ,foodproximatecomposition.water  ,foodproximatecomposition.protein ,foodproximatecomposition.fat ,foodproximatecomposition.cho  ,foodproximatecomposition.fiber ,foodproximatecomposition.ash from food INNER JOIN foodproximatecomposition ON food.foodid=foodproximatecomposition.foodid WHERE food.englishname NOT LIKE '%Bread%' AND food.englishname NOT LIKE '%Burger%' AND food.englishname NOT LIKE '%Cheese%' AND food.englishname NOT LIKE '%Chicken%' AND food.englishname NOT LIKE '%Chocolate%' AND food.englishname NOT LIKE '%Egg%' AND food.englishname NOT LIKE '%Fish%' AND food.englishname NOT LIKE '%Fruit%' AND food.englishname NOT LIKE '%Rice%' AND food.englishname NOT LIKE '%IceCream%' AND food.englishname NOT LIKE '%Meat%' AND food.englishname NOT LIKE '%Noodle%' AND food.englishname NOT LIKE '%Pizza%' AND food.englishname NOT LIKE '%Snake%' AND food.englishname NOT LIKE '%Soup%' AND food.englishname NOT LIKE '%Sweet%' AND food.englishname NOT LIKE '%vegetable%' AND food.englishname NOT LIKE '%Rice%'"
 				} else {
 					//var sql = "select food.foodid , food.englishname, food.healthscorecategory, food.greenbookcategory, food.servingsize, food.measurement,   food.scientificname,food.foodgroup ,food.ediblePortion ,food.weight ,foodproximatecomposition.energy, foodproximatecomposition.suger ,foodproximatecomposition.water  ,foodproximatecomposition.protein ,foodproximatecomposition.fat ,foodproximatecomposition.cho  ,foodproximatecomposition.fiber ,foodproximatecomposition.ash, foodproximatecomposition.saturatedfat, foodproximatecomposition.monounsaturatedfat, foodproximatecomposition.polysaturatedfat, foodproximatecomposition.transfat, foodproximatecomposition.cholestrol ,foodminerals.calcium, foodminerals.iron, foodminerals.phosphorus, foodminerals.potassium, foodminerals.sodium,foodvitamains.carotenes, foodvitamains.niacin, foodvitamains.retinol, foodvitamains.retinolequival, foodvitamains.vitamainb1, foodvitamains.vitamainb2, foodvitamains.vitamainc from food LEFT JOIN foodproximatecomposition ON food.foodid=foodproximatecomposition.foodid LEFT JOIN foodminerals ON food.foodid=foodminerals.foodid LEFT JOIN foodvitamains ON food.foodid=foodvitamains.foodid WHERE food.foodid = '"+food+"' group by food.servingsize";
-					var sql = "select food.foodid , food.englishname, food.healthscorecategory, food.greenbookcategory, food.servingsize, food.measurement,   food.scientificname,food.foodgroup ,food.ediblePortion ,food.weight ,food.energy, food.suger ,food.water  ,food.protein ,food.fat ,food.cho  ,food.fiber ,food.ash, food.saturatedfat, food.monounsaturatedfat, food.polysaturatedfat, food.transfat, food.cholestrol ,food.calcium, food.iron, food.phosphorus, food.potassium, food.sodium,food.carotenes, food.niacin, food.retinol, food.retinolequival, food.vitamainb1, food.vitamainb2, food.vitamainc from food  WHERE food.foodid = '" + food + "' group by food.measurement";
+					var sql = "select food.foodid , food.englishname,food.country, food.healthscorecategory, food.greenbookcategory, food.servingsize, food.measurement,   food.scientificname,food.foodgroup ,food.ediblePortion ,food.weight ,food.energy, food.suger ,food.water  ,food.protein ,food.fat ,food.cho  ,food.fiber ,food.ash, food.saturatedfat, food.monounsaturatedfat, food.polysaturatedfat, food.transfat, food.cholestrol ,food.calcium, food.iron, food.phosphorus, food.potassium, food.sodium,food.carotenes, food.niacin, food.retinol, food.retinolequival, food.vitamainb1, food.vitamainb2, food.vitamainc from food  WHERE food.foodid = '" + food + "' group by food.measurement";
 
 				}
 				return sequelize.query(sql, {
@@ -67,7 +75,38 @@ module.exports = function(sequelize, DataTypes) {
 					type: sequelize.QueryTypes.SELECT
 				});
 
-			}
+			},
+			getbeverages: function() {
+
+
+				var sql = "SELECT * FROM WeHealthDB.food where greenbookcategory like '%Beverages%'";
+
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.SELECT
+				});
+
+			},
+                        getAllPhotos:function() {
+                           var sql = "SELECT * FROM WeHealthDB.foodhistory inner join user on foodhistory.userID = user.userID where foodphotoname>'' and foodphotoname!='undefined'";
+
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.SELECT
+				});
+                        },
+                        updatephotostatus:function(sql) {
+                           
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.INSERT
+				});
+                        },
+                        updatefoodname:function(sql) {
+                           
+				return sequelize.query(sql, {
+					type: sequelize.QueryTypes.INSERT
+				});
+                        },
+
+                        
 
 		}
 	});

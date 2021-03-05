@@ -39,7 +39,7 @@ fs.readdirSync(config.modelsDir)
     })
     // import model files and save model names
     .forEach(function (file) {
-        winston.info('Loading model file ' + file);
+        winston.info('Loading model file ' + file); 
         var model = sequelize.import(path.join(config.modelsDir, file));
         db[model.name] = model;
     });
@@ -58,7 +58,7 @@ Object.keys(db).forEach(function (modelName) {
 sequelize
     .sync({
         force: config.FORCE_DB_SYNC === false,
-        logging: config.enableSequelizeLog === 'true' ? winston.verbose : false
+        logging: config.enableSequelizeLog === 'false' ? winston.verbose : false
     })
     .then(function () {
         winston.info("Database " + (config.FORCE_DB_SYNC === false ? "*DROPPED* and " : "") + "synchronized");

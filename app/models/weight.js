@@ -11,6 +11,11 @@ module.exports = function(sequelize, DataTypes) {
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
 				
 				},
+				delete_Weight: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.DELETE});
+				
+				},
 				lastAddIDs: function (lastinsertid) { 
 				
 				var sql = "SELECT weightID AS id from weight WHERE weightID >='"+lastinsertid+"' AND isdeleted='0' ";
@@ -29,7 +34,7 @@ module.exports = function(sequelize, DataTypes) {
 				},
 			   getweight: function (userid)
 			   {
-				   var sql = "SELECT weightID,  scaleDate AS scaleDate , weightQty AS Qty , deviceStatus AS deviceStatus from weight WHERE userID='"+userid+"' AND isdeleted='0' GROUP BY scaleDate";
+				   var sql = "SELECT weightID,  scaleDate AS scaleDate , weightQty AS Qty , height , deviceStatus AS deviceStatus, unit , notes as notes , deviceuuid , deviceid from weight WHERE userID='"+userid+"' AND isdeleted='0' GROUP BY scaleDate";
 				 
 				    return sequelize.query(sql,{ type: sequelize.QueryTypes.SELECT});
 					

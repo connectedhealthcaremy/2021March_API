@@ -15,6 +15,7 @@
  	app.get('/CountDiabetesAndHypertensionPatients', hm.getcountBothUser);
  	app.post('/acceptRequest', hm.acceptRequest);
  	app.post('/rejectRequest', hm.rejectRequest);
+ 	app.post('/acceptRequestCorporate', hm.acceptRequestCorporate);
  	app.post('/removeRegistration', hm.removeRegistration);
 
  	app.get('/GetRegisterPatients', hm.getregiterrequestPatients);
@@ -88,6 +89,8 @@
  	 **Comments by doctor on health summary
  	 ******************/
  	app.post('/careplanReview', hm.careplanReview);
+	app.post('/DietplanReview', hm.DietplanReview);
+	app.post('/teleConsultationReview', hm.teleConsultationReview); // cy added
 
  	/***************
  	 **get review patients
@@ -114,6 +117,6 @@
  	 **Get preview report for doctor
  	 ****************/
  	app.get('/previewdoctorreport', hm.previewdoctorreport);
-
-
+	app.get('/previewTeleConsultation', hm.previewTeleConsultation);
+    app.get('/getglobalsettings', hm.getglobalsettings);
  };

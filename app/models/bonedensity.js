@@ -11,6 +11,11 @@ module.exports = function(sequelize, DataTypes) {
 				return sequelize.query(sql,{ type: sequelize.QueryTypes.INSERT});
 				
 				},
+				deleteBoneDensity: function (sql) { 
+				
+				return sequelize.query(sql,{ type: sequelize.QueryTypes.DELETE}); 
+				
+				},
 			   getBoneDensity: function (userid)
 			   {
 				   var sql = "SELECT boneDensityID, scaleDate  , boneDensityQty AS Qty from bonedensity WHERE userID='"+userid+"'";
