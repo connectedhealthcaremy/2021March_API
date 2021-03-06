@@ -10,7 +10,7 @@
     "url": "https://github.com/jpotts18/mean-stack-relational.git"
   },
   "engines": {
-    "node": "4.2.x",
+    "node": "14.15.x",
     "npm": "2.14.x"
   },
   "scripts": {
@@ -26,8 +26,10 @@
     "connect-flash": "^0.1.1",
     "cookie-parser": "^1.4.0",
     "express": "^4.13.3",
+    "express-http-proxy": "~0.7.4",
     "express-sequelize-session": "^0.4.0",
     "express-session": "^1.12.1",
+    "fcm-node": "^1.5.2",
     "glob": "^6.0.1",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
@@ -37,12 +39,14 @@
     "jshint-stylish": "^2.1.0",
     "json5": "^0.4.0",
     "lodash": "latest",
+    "md5": "^2.3.0",
     "method-override": "^2.3.5",
     "morgan": "^1.6.1",
     "multer": "~1.2.0",
     "mysql": "^2.9.0",
     "nconf": "^0.8.2",
     "node-gcm": "^0.14.3",
+    "node-red": "^1.2.9",
     "nodemailer": "~0.7.1",
     "passport": "^0.3.2",
     "passport-facebook": "^2.0.0",
@@ -58,8 +62,7 @@
     "slashes": "^1.0.5",
     "standard-error": "^1.1.0",
     "view-helpers": "latest",
-    "winston": "latest",
-    "express-http-proxy": "~0.7.4"
+    "winston": "latest"
   },
   "devDependencies": {
     "chai": "^3.2.0",
