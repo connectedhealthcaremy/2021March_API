@@ -127,7 +127,7 @@ app.use(settings.httpAdminRoot,RED.httpAdmin);
 // Serve the http nodes UI from /api
 app.use(settings.httpNodeRoot,RED.httpNode);
 
-server.listen(config.PORT);
+server.listen( process.env.PORT || config.PORT);
 
 RED.start();
 /**********************
