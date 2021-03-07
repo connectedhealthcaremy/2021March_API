@@ -91,7 +91,7 @@ module.exports = function(grunt) {
                     delay: 1000,
                     env: {
                         //PORT: 9000 
-                        PORT: process.env.port || 8080
+                        PORT: process.env.PORT || 8080
                     },
                     cwd: __dirname
                 }
