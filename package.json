@@ -14,7 +14,7 @@
     "npm": "2.14.x"
   },
   "scripts": {
-    "start": "node_modules/pm2/bin/pm2 app.js", 
+    "start": "node ./node_modules/pm2/bin/pm2 start app.js", 
     "postinstall": "node ./node_modules/pm2/bin/pm2 logs"
   },
   "dependencies": {
