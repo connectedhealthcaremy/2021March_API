@@ -15,7 +15,7 @@ const logger = winston.createLogger({
       format.timestamp(),
       format.colorize(),
       format.simple(),
-      format.printf(info => `${info.timestamp} ${info[MESSAGE]}`),
+      //format.printf(info => `${info.timestamp} ${info[MESSAGE]}`),
     ),
     //silent: config.logger.disabled,
   })
