@@ -1,7 +1,7 @@
 {
   "apps" : [{
     // mean-stack-relational app
-    "name"       : "IDAS-API",
+    "name"       : "WeHealth-API",
     "script"     : "app.js",
     // by default, the app runs in fork mode, uncomment below to run in cluster mode
     "instances"  : 1,
@@ -19,10 +19,10 @@
     "restart_delay" : 1000,
     "max_memory_restart" : "300M",  // restart app if it reaches an 8GB memory footprint
     "env": {
-      "NODE_ENV": "development"
+      "NODE_ENV": "dev"
     },
     "env" : {
-      "NODE_ENV": "production"
+      "NODE_ENV": "productions"
     }
   }]
 }
